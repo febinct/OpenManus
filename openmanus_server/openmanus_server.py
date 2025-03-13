@@ -172,15 +172,9 @@ def parse_args():
     parser = argparse.ArgumentParser(description="OpenManus MCP Server")
     parser.add_argument(
         "--transport",
-        choices=["stdio", "http"],
+        choices=["stdio"],
         default="stdio",
         help="Communication method: stdio or http (default: stdio)",
-    )
-    parser.add_argument(
-        "--host", default="127.0.0.1", help="HTTP server host (default: 127.0.0.1)"
-    )
-    parser.add_argument(
-        "--port", type=int, default=8000, help="HTTP server port (default: 8000)"
     )
     return parser.parse_args()
 
@@ -188,9 +182,5 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
 
-    if args.transport == "stdio":
-        logger.info("Starting OpenManus server (stdio mode)")
-        openmanus.run(transport="stdio")
-    else:
-        logger.info(f"Starting OpenManus server (HTTP mode) at {args.host}:{args.port}")
-        openmanus.run(transport="http", host=args.host, port=args.port)
+    logger.info("Starting OpenManus server (stdio mode)")
+    openmanus.run(transport="stdio")

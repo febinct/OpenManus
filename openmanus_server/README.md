@@ -111,10 +111,12 @@ After clicking on the hammer icon, you should see tools listed:
 
 ### 💻 2. Testing with simple Client Example
 
-Check out `openmanus_client_example.py` to test the openmanus server using the MCP client.
+Check out `openmanus_client.py` to test the openmanus server using the MCP client.
 
+#### Demo display
+https://github.com/user-attachments/assets/aeacd93d-9bec-46d1-831b-20e898c7507b
 ```
-uv run openmanus_server/openmanus_client_example.py openmanus_server/openmanus_server.py
+python openmanus_server/openmanus_client.py
 ```
 
 
