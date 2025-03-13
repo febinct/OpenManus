@@ -8,6 +8,7 @@ from app.logger import logger
 from app.mcp.tool import MCPTool, MCPToolRegistry
 from app.prompt.manus import NEXT_STEP_PROMPT, SYSTEM_PROMPT
 from app.tool import Terminate, ToolCollection
+from app.tool.ask_human import AskHuman
 from app.tool.browser_use_tool import BrowserUseTool
 from app.tool.file_saver import FileSaver
 from app.tool.web_search import WebSearch
@@ -38,7 +39,7 @@ class Manus(ToolCallAgent):
     # Add general-purpose tools to the tool collection
     available_tools: ToolCollection = Field(
         default_factory=lambda: ToolCollection(
-            PythonExecute(), WebSearch(), BrowserUseTool(), FileSaver(), Terminate()
+            PythonExecute(), WebSearch(), BrowserUseTool(), FileSaver(), AskHuman(), Terminate()
         )
     )
     
