@@ -16,20 +16,20 @@ The tool accepts content and a file path, and saves the content to that location
         "properties": {
             "content": {
                 "type": "string",
-                "description": "(required) The content to save to the file.",
+                "description": "(required) The content to save to the file."
             },
             "file_path": {
                 "type": "string",
-                "description": "(required) The path where the file should be saved, including filename and extension.",
+                "description": "(required) The path where the file should be saved including filename and extension."
             },
             "mode": {
                 "type": "string",
                 "description": "(optional) The file opening mode. Default is 'w' for write. Use 'a' for append.",
                 "enum": ["w", "a"],
-                "default": "w",
-            },
+                "default": "w"
+            }
         },
-        "required": ["content", "file_path"],
+        "required": ["content", "file_path"]
     }
 
     async def execute(self, content: str, file_path: str, mode: str = "w") -> str:
