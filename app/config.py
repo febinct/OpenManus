@@ -30,6 +30,8 @@ class ProxySettings(BaseModel):
     username: Optional[str] = Field(None, description="Proxy username")
     password: Optional[str] = Field(None, description="Proxy password")
 
+class SearchSettings(BaseModel):
+    engine: str = Field(default='Google', description="Search engine the llm to use")
 
 class BrowserSettings(BaseModel):
     headless: bool = Field(False, description="Whether to run browser in headless mode")
@@ -57,6 +59,9 @@ class AppConfig(BaseModel):
     llm: Dict[str, LLMSettings]
     browser_config: Optional[BrowserSettings] = Field(
         None, description="Browser configuration"
+    )
+    search_config: Optional[SearchSettings] = Field(
+        None, description="Search configuration"
     )
 
     class Config:
@@ -149,6 +154,11 @@ class Config:
             if valid_browser_params:
                 browser_settings = BrowserSettings(**valid_browser_params)
 
+        search_config = raw_config.get("search", {})
+        search_settings = None
+        if search_config:
+            search_settings = SearchSettings(**search_config)
+
         config_dict = {
             "llm": {
                 "default": default_settings,
@@ -158,6 +168,7 @@ class Config:
                 },
             },
             "browser_config": browser_settings,
+            "search_config": search_settings,
         }
 
         self._config = AppConfig(**config_dict)
@@ -169,6 +180,10 @@ class Config:
     @property
     def browser_config(self) -> Optional[BrowserSettings]:
         return self._config.browser_config
+    
+    @property
+    def search_config(self) -> Optional[SearchSettings]:
+        return self._config.search_config
 
 
 config = Config()

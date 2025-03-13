@@ -1,4 +1,4 @@
-English | [中文](README_zh.md)
+English | [中文](README_zh.md) | [한국어](README_ko.md) | [日本語](README_ja.md)
 
 [![GitHub stars](https://img.shields.io/github/stars/mannaandpoem/OpenManus?style=social)](https://github.com/mannaandpoem/OpenManus/stargazers)
 &ensp;
@@ -104,110 +104,6 @@ model = "gpt-4o"
 base_url = "https://api.openai.com/v1"
 api_key = "sk-..."  # Replace with your actual API key
 ```
-
-### MCP Integration (Optional)
-
-OpenManus supports the Model Context Protocol (MCP), allowing you to extend its capabilities with custom tools. MCP provides a standardized way for AI agents to discover and use tools from external servers.
-
-#### Setting Up MCP
-
-1. Install the MCP SDK:
-
-```bash
-pip install mcp
-```
-
-2. Create a configuration file for MCP servers:
-
-```bash
-cp config/mcp_config.example.json config/mcp_config.json
-```
-
-3. Edit `config/mcp_config.json` to configure your MCP servers:
-
-```json
-{
-  "mcpServers": {
-    "calculator": {
-      "command": "python",
-      "args": ["examples/mcp_server_example.py"],
-      "disabled": false,
-      "autoApprove": ["calculate", "sqrt"]
-    }
-  }
-}
-```
-
-Configuration options:
-- `command`: The command to run the MCP server
-- `args`: Arguments to pass to the command
-- `env`: Environment variables to set when running the server
-- `disabled`: Whether the server is disabled (default: false)
-- `autoApprove`: List of tool names that can be auto-approved (default: empty)
-
-4. OpenManus will automatically connect to the configured MCP servers and register their tools when it starts.
-
-#### Using MCP Tools
-
-Once configured, MCP tools are available to the agent just like any other tool. For example, if you've configured the calculator server from the example, you can use it like this:
-
-```
-You: Calculate 5 + 3
-Agent: I'll use the calculator to compute that.
-Result of 5 add 3 = 8
-```
-
-#### Creating Custom MCP Servers
-
-You can create your own MCP servers to extend OpenManus with custom capabilities. Here's a simple example:
-
-```python
-from mcp.server.fastmcp import FastMCP
-
-# Create a named server
-calculator = FastMCP("calculator")
-
-# Define a tool
-@calculator.tool()
-def calculate(ctx, a: float, b: float, operation: str) -> str:
-    """Perform a calculation on two numbers.
-    
-    Args:
-        ctx: Tool context
-        a: First number
-        b: Second number
-        operation: Operation to perform (add, subtract, multiply, divide)
-        
-    Returns:
-        Result of the calculation
-    """
-    result = None
-    if operation == "add":
-        result = a + b
-    elif operation == "subtract":
-        result = a - b
-    elif operation == "multiply":
-        result = a * b
-    elif operation == "divide":
-        if b == 0:
-            return "Error: Cannot divide by zero"
-        result = a / b
-
-    return f"Result of {a} {operation} {b} = {result}"
-
-if __name__ == "__main__":
-    calculator.run(transport="stdio")
-```
-
-#### Testing MCP Integration
-
-OpenManus includes tests for the MCP integration. You can run them with:
-
-```bash
-./run_tests.py tests/mcp
-```
-
-See the [MCP documentation](app/mcp/README.md) for more details on creating and using MCP servers.
 
 ## Quick Start
 

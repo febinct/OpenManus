@@ -42,3 +42,8 @@ api_key = "sk-..."
 # server = "http://proxy-server:port"
 # username = "proxy-username"
 # password = "proxy-password"
+
+# Optional configuration, Search settings.
+# [search]
+# Search engine for agent to use. Default is "Google", can be set to "Baidu" or "DuckDuckGo".
+#engine = "Google"
