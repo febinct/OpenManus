@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import Field
 
 from app.agent.base import BaseAgent
-from app.llm import LLM
+from app.llm.inference import LLM
 from app.schema import AgentState, Memory
 
 

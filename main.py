@@ -5,7 +5,7 @@ from app.logger import logger
 
 
 async def main():
-    agent = Manus()
+    agent = await Manus.create()
     try:
         prompt = input("Enter your prompt: ")
         if not prompt.strip():

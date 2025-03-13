@@ -6,7 +6,7 @@ from pydantic import Field
 
 from app.agent.base import BaseAgent
 from app.flow.base import BaseFlow, PlanStepStatus
-from app.llm import LLM
+from app.llm.inference import LLM
 from app.logger import logger
 from app.schema import AgentState, Message, ToolChoice
 from app.tool import PlanningTool
