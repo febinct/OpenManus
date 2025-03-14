@@ -1,4 +1,5 @@
 import asyncio
+import argparse
 
 from app.agent.manus import Manus
 from app.logger import logger
@@ -6,12 +7,21 @@ from app.logger import logger
 
 async def main():
     """Main entry point for the OpenManus CLI."""
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description="OpenManus CLI")
+    parser.add_argument("--prompt", "-p", type=str, help="Input prompt to process")
+    args = parser.parse_args()
+    
     # Create the agent
     agent = await Manus.create()
     
     try:
-        # Get user input
-        prompt = input("Enter your prompt: ")
+        # Get user input from command-line argument or prompt
+        if args.prompt:
+            prompt = args.prompt
+        else:
+            prompt = input("Enter your prompt: ")
+            
         if not prompt.strip():
             logger.warning("Empty prompt provided.")
             return

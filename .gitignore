@@ -180,3 +180,5 @@ data/
 workspace/
 config/config.toml
 config/mcp_config.json
+.aider*
+project/*

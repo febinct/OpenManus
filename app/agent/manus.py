@@ -6,7 +6,6 @@ from pydantic import Field
 from app.agent.toolcall import ToolCallAgent
 from app.logger import logger
 from app.mcp.tool import MCPTool, MCPToolRegistry
-from app.prompt.code_editor import CODE_EDITOR_PROMPT as FILE_EDITOR_PROMPT
 from app.prompt.manus import NEXT_STEP_PROMPT, SYSTEM_PROMPT
 from app.tool import Terminate, ToolCollection
 from app.tool.ask_human import AskHuman
@@ -50,12 +49,9 @@ class Manus(ToolCallAgent):
     
     # Track current edit mode
     current_edit_mode: str = "diff"  # Default to diff mode
-    file_editor_prompt: str = FILE_EDITOR_PROMPT
     
     async def initialize(self):
         """Initialize the agent, including MCP tools and file editing capabilities."""
-        # Add file editing capabilities to the system prompt
-        self.system_prompt = self.system_prompt + "\n\n" + self.file_editor_prompt
         
         try:
             # Check if MCP module is available
@@ -90,8 +86,7 @@ class Manus(ToolCallAgent):
         except Exception as e:
             logger.error(f"Failed to initialize MCP tools: {e}")
             self.mcp_tools = {}
-            
-        logger.info("Initialized file editing capabilities")
+        
 
     async def set_edit_mode(self, mode: str) -> str:
         """Set the current file editing mode"""

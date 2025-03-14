@@ -23,12 +23,45 @@ class FileEditor(BaseTool):
     name: str = "file_editor"
     description: str = """Edit or create any type of file using specialized formats for precise modifications.
 Supports multiple edit formats for different types of changes:
-1. Whole file mode: Create or replace entire files
-2. Diff mode: Apply search/replace blocks for targeted edits
-3. Unified diff mode: Apply unified diff format changes
+
+1. DIFF MODE (format="diff"): For targeted edits to specific parts of files
+   ```
+   filename.py
+   ```python
+   <<<<<<< SEARCH
+   def old_function():
+       # old code
+   =======
+   def new_function():
+       # new code
+   >>>>>>> REPLACE
+   ```
+   Rules: SEARCH section must EXACTLY match existing code, including whitespace.
+   For new files, use an empty SEARCH section.
+
+2. WHOLE FILE MODE (format="whole"): For creating new files or complete rewrites
+   ```
+   filename.py
+   ```python
+   # Complete file content goes here
+   # Never use ellipses (...) or omit any content
+   ```
+   Rules: Include the ENTIRE file content, never skip or abbreviate.
+
+3. UNIFIED DIFF MODE (format="udiff"): For complex changes across multiple parts
+   ```diff
+   --- filename.py
+   +++ filename.py
+   @@ ... @@
+   -def old_function():
+   -    # old code
+   +def new_function():
+   +    # new code
+   ```
+   Rules: Include file paths, mark removed lines with - and added with +.
 
 Also supports direct file saving by providing content and file_path parameters.
-Can handle any file type, not just code files - text, configuration, data, etc."""
+Can handle any type of file - code, configuration, data, text, etc."""
     
     parameters: Dict = {
         "type": "object",
