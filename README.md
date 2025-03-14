@@ -7,8 +7,46 @@ English | [中文](README_zh.md) | [한국어](README_ko.md) | [日本語](READM
 
 # 👋 OpenManus
 
-Open Manus is an autonomous AI agent built as a wrapper around foundation models. 
- It operates in a cloud-based virtual computing environment with full access to tools like web browsers, shell commands, and code execution. The system's key innovation is using executable Python code as its action mechanism ("CodeAct" approach), allowing it to perform complex operations autonomously. The architecture consists of an iterative agent loop (analyze → plan → execute → observe), with specialized modules for planning, knowledge retrieval, and memory management. Manus uses file-based memory to track progress and store information across operations.
+OpenManus is an autonomous AI agent built as a wrapper around foundation models. It operates in a cloud-based virtual computing environment with full access to tools like web browsers, shell commands, and code execution. The system's key innovation is using executable Python code as its action mechanism ("CodeAct" approach), allowing it to perform complex operations autonomously. The architecture consists of an iterative agent loop (analyze → plan → execute → observe), with specialized modules for planning, knowledge retrieval, and memory management. Manus uses file-based memory to track progress and store information across operations.
+
+## Key Features
+
+- **Advanced Code Editing**: OpenManus features powerful code editing capabilities with multiple formats:
+  - **Diff Format**: Make targeted changes to specific parts of files using SEARCH/REPLACE blocks
+  - **Whole Format**: Create new files or completely rewrite existing ones
+  - **Unified Diff Format**: Apply complex changes across multiple parts of a file
+  
+- **Versatile File Operations**: The enhanced CodeEditor tool handles all file operations:
+  - Create, modify, or save any type of file (code, text, data, etc.)
+  - Support for both write and append modes
+  - Automatic directory creation
+
+- **Repository Mapping**: Generate comprehensive maps of code repositories to understand structure and relationships
+
+- **Web Browsing**: Interact with websites for information gathering and testing
+
+- **Web Search**: Perform web searches using multiple search engines (Google, Baidu, DuckDuckGo)
+
+- **Python Execution**: Run Python code to process data and automate tasks
+
+- **Planning System**: Create and manage structured plans with step tracking and progress monitoring
+
+- **MCP Integration**: Connect to Model Context Protocol (MCP) servers to extend functionality:
+  - Register custom tools from MCP servers
+  - Execute tools as part of the agent's workflow
+  - Access external APIs and services
+
+- **OpenManus Server**: A dedicated MCP server that exposes OpenManus tools as standardized APIs:
+  - Browser automation
+  - Google search
+  - Python code execution
+  - File saving
+  - Termination control
+
+- **Multiple Agent Types**:
+  - **Manus**: A versatile general-purpose agent with comprehensive tools
+  - **PlanningAgent**: An agent focused on creating and managing plans
+  - **SWEAgent**: An autonomous AI programmer for software engineering tasks
 
 It's a simple implementation, so we welcome any suggestions, contributions, and feedback!
 
@@ -104,6 +142,35 @@ base_url = "https://api.openai.com/v1"
 api_key = "sk-..."  # Replace with your actual API key
 ```
 
+### MCP Configuration (Optional)
+
+If you want to use MCP servers with OpenManus, you'll need to configure them:
+
+1. Create a `mcp_config.json` file in the `config` directory:
+
+```bash
+cp config/mcp_config.example.json config/mcp_config.json
+```
+
+2. Edit `config/mcp_config.json` to add your MCP server configurations:
+
+```json
+{
+  "mcpServers": {
+    "server-name": {
+      "command": "command-to-run-server",
+      "args": ["arg1", "arg2"],
+      "env": {
+        "ENV_VAR1": "value1",
+        "ENV_VAR2": "value2"
+      },
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
+```
+
 ## Quick Start
 
 One line for run OpenManus:
@@ -119,6 +186,36 @@ For unstable version, you also can run:
 ```bash
 python run_flow.py
 ```
+
+### Using OpenManus Server
+
+To use the OpenManus server with Claude for Desktop:
+
+1. Install MCP dependencies:
+
+```bash
+uv pip install -r openmanus_server/mcp_requirements.txt
+```
+
+2. Configure Claude for Desktop to use the OpenManus server:
+
+```json
+{
+    "mcpServers": {
+        "openmanus": {
+            "command": "/path/to/uv",
+            "args": [
+                "--directory",
+                "/path/to/OpenManus/openmanus_server",
+                "run",
+                "openmanus_server.py"
+            ]
+        }
+    }
+}
+```
+
+3. Restart Claude for Desktop and look for the hammer icon to access the OpenManus tools.
 
 ## How to contribute
 
@@ -158,4 +255,3 @@ OpenManus is built by contributors from MetaGPT. Huge thanks to this agent commu
   journal = {GitHub repository},
   howpublished = {\url{https://github.com/mannaandpoem/OpenManus}},
 }
-```
