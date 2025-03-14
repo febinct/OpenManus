@@ -40,7 +40,7 @@ Note: You MUST append a `sleep 0.05` to the end of the command for commands that
             str: The output, and error of the command execution.
         """
         # Split the command by & to handle multiple commands
-        commands = [cmd.strip() for cmd in command.split('&') if cmd.strip()]
+        commands = [cmd.strip() for cmd in command.split("&") if cmd.strip()]
         final_output = CLIResult(output="", error="")
 
         for cmd in commands:
@@ -61,7 +61,7 @@ Note: You MUST append a `sleep 0.05` to the end of the command for commands that
                         stdout, stderr = await self.process.communicate()
                         result = CLIResult(
                             output=stdout.decode().strip(),
-                            error=stderr.decode().strip()
+                            error=stderr.decode().strip(),
                         )
                     except Exception as e:
                         result = CLIResult(output="", error=str(e))
@@ -70,9 +70,13 @@ Note: You MUST append a `sleep 0.05` to the end of the command for commands that
 
             # Combine outputs
             if result.output:
-                final_output.output += (result.output + "\n") if final_output.output else result.output
+                final_output.output += (
+                    (result.output + "\n") if final_output.output else result.output
+                )
             if result.error:
-                final_output.error += (result.error + "\n") if final_output.error else result.error
+                final_output.error += (
+                    (result.error + "\n") if final_output.error else result.error
+                )
 
         # Remove trailing newlines
         final_output.output = final_output.output.rstrip()
@@ -124,14 +128,10 @@ Note: You MUST append a `sleep 0.05` to the end of the command for commands that
             if os.path.isdir(new_path):
                 self.current_path = new_path
                 return CLIResult(
-                    output=f"Changed directory to {self.current_path}",
-                    error=""
+                    output=f"Changed directory to {self.current_path}", error=""
                 )
             else:
-                return CLIResult(
-                    output="",
-                    error=f"No such directory: {new_path}"
-                )
+                return CLIResult(output="", error=f"No such directory: {new_path}")
         except Exception as e:
             return CLIResult(output="", error=str(e))
 
@@ -152,7 +152,7 @@ Note: You MUST append a `sleep 0.05` to the end of the command for commands that
             parts = shlex.split(command)
             if any(cmd in dangerous_commands for cmd in parts):
                 raise ValueError("Use of dangerous commands is restricted.")
-        except Exception as e:
+        except Exception:
             # If shlex.split fails, try basic string comparison
             if any(cmd in command for cmd in dangerous_commands):
                 raise ValueError("Use of dangerous commands is restricted.")

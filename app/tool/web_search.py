@@ -1,9 +1,14 @@
 import asyncio
 from typing import List
 
-from app.tool.base import BaseTool
 from app.config import config
-from app.tool.search import WebSearchEngine, BaiduSearchEngine, GoogleSearchEngine, DuckDuckGoSearchEngine
+from app.tool.base import BaseTool
+from app.tool.search import (
+    BaiduSearchEngine,
+    DuckDuckGoSearchEngine,
+    GoogleSearchEngine,
+    WebSearchEngine,
+)
 
 
 class WebSearch(BaseTool):
@@ -48,7 +53,8 @@ The tool returns a list of URLs that match the search query.
         loop = asyncio.get_event_loop()
         search_engine = self.get_search_engine()
         links = await loop.run_in_executor(
-            None, lambda: list(search_engine.perform_search(query, num_results=num_results))
+            None,
+            lambda: list(search_engine.perform_search(query, num_results=num_results)),
         )
 
         return links

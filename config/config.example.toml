@@ -1,6 +1,6 @@
 # Global LLM configuration
 [llm]
-model =  "gpt-4o" #"claude-3-5-sonnet"
+model = "gpt-4o" #"claude-3-5-sonnet"
 base_url = "https://api.openai.com/v1" # "https://api.anthropic.com"
 api_key = "sk-..."
 max_tokens = 4096
@@ -20,6 +20,8 @@ temperature = 0.0
 model = "gpt-4o" # "claude-3-5-sonnet"
 base_url = "https://api.openai.com/v1" # "https://api.anthropic.com"
 api_key = "sk-..."
+max_tokens = 8192
+temperature = 0.0
 
 # Optional configuration for specific browser configuration
 # [browser]
@@ -37,13 +39,13 @@ api_key = "sk-..."
 # Connect to a browser instance via CDP
 #cdp_url = ""
 
-# Optional configuration, Proxy settings for the browser
+# Optional configuration Proxy settings for the browser
 # [browser.proxy]
 # server = "http://proxy-server:port"
 # username = "proxy-username"
 # password = "proxy-password"
 
-# Optional configuration, Search settings.
+# Optional configuration Search settings.
 # [search]
-# Search engine for agent to use. Default is "Google", can be set to "Baidu" or "DuckDuckGo".
+# Search engine for agent to use. Default is "Google" can be set to "Baidu" or "DuckDuckGo".
 #engine = "Google"

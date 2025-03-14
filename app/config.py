@@ -30,8 +30,10 @@ class ProxySettings(BaseModel):
     username: Optional[str] = Field(None, description="Proxy username")
     password: Optional[str] = Field(None, description="Proxy password")
 
+
 class SearchSettings(BaseModel):
-    engine: str = Field(default='Google', description="Search engine the llm to use")
+    engine: str = Field(default="Google", description="Search engine the llm to use")
+
 
 class BrowserSettings(BaseModel):
     headless: bool = Field(False, description="Whether to run browser in headless mode")
@@ -180,7 +182,7 @@ class Config:
     @property
     def browser_config(self) -> Optional[BrowserSettings]:
         return self._config.browser_config
-    
+
     @property
     def search_config(self) -> Optional[SearchSettings]:
         return self._config.search_config

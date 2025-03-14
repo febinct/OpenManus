@@ -3,24 +3,31 @@ from typing import Any, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
+
 class Role(str, Enum):
     """Message role options"""
+
     SYSTEM = "system"
     USER = "user"
-    ASSISTANT = "assistant" 
+    ASSISTANT = "assistant"
     TOOL = "tool"
+
 
 ROLE_VALUES = tuple(role.value for role in Role)
 ROLE_TYPE = Literal[ROLE_VALUES]  # type: ignore
 
+
 class ToolChoice(str, Enum):
     """Tool choice options"""
+
     NONE = "none"
     AUTO = "auto"
     REQUIRED = "required"
 
+
 TOOL_CHOICE_VALUES = tuple(choice.value for choice in ToolChoice)
 TOOL_CHOICE_TYPE = Literal[TOOL_CHOICE_VALUES]  # type: ignore
+
 
 class AgentState(str, Enum):
     """Agent execution states"""
@@ -47,7 +54,7 @@ class ToolCall(BaseModel):
 class Message(BaseModel):
     """Represents a chat message in the conversation"""
 
-    role: ROLE_TYPE = Field(...) # type: ignore
+    role: ROLE_TYPE = Field(...)  # type: ignore
     content: Optional[str] = Field(default=None)
     tool_calls: Optional[List[ToolCall]] = Field(default=None)
     name: Optional[str] = Field(default=None)
@@ -104,7 +111,9 @@ class Message(BaseModel):
     @classmethod
     def tool_message(cls, content: str, name, tool_call_id: str) -> "Message":
         """Create a tool message"""
-        return cls(role=Role.TOOL, content=content, name=name, tool_call_id=tool_call_id)
+        return cls(
+            role=Role.TOOL, content=content, name=name, tool_call_id=tool_call_id
+        )
 
     @classmethod
     def from_tool_calls(

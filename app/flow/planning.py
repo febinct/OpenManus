@@ -124,7 +124,7 @@ class PlanningFlow(BaseFlow):
             messages=[user_message],
             system_msgs=[system_message],
             tools=[self.planning_tool.to_param()],
-            tool_choice=ToolChoice.REQUIRED,
+            tool_choice=ToolChoice.AUTO,
         )
 
         # Process tool calls if present

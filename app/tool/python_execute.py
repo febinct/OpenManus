@@ -1,6 +1,6 @@
+import multiprocessing
 import sys
 from io import StringIO
-import multiprocessing
 from typing import Dict
 
 from app.tool.base import BaseTool
@@ -53,17 +53,13 @@ class PythonExecute(BaseTool):
         """
 
         with multiprocessing.Manager() as manager:
-            result = manager.dict({
-                "observation": "",
-                "success": False
-            })
+            result = manager.dict({"observation": "", "success": False})
             if isinstance(__builtins__, dict):
                 safe_globals = {"__builtins__": __builtins__}
             else:
                 safe_globals = {"__builtins__": __builtins__.__dict__.copy()}
             proc = multiprocessing.Process(
-                target=self._run_code,
-                args=(code, result, safe_globals)
+                target=self._run_code, args=(code, result, safe_globals)
             )
             proc.start()
             proc.join(timeout)

@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, model_validator
 
 from app.llm.inference import LLM
 from app.logger import logger
-from app.schema import AgentState, Memory, Message, ROLE_TYPE
+from app.schema import ROLE_TYPE, AgentState, Memory, Message
 
 
 class BaseAgent(BaseModel, ABC):
@@ -82,7 +82,7 @@ class BaseAgent(BaseModel, ABC):
 
     def update_memory(
         self,
-        role: ROLE_TYPE, # type: ignore
+        role: ROLE_TYPE,  # type: ignore
         content: str,
         **kwargs,
     ) -> None:
