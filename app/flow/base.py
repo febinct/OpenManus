@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel
 from app.agent.base import BaseAgent
-from app.logger import logger  # Added logger import
+from app.logger import logger
 
 
 class FlowType(str, Enum):
