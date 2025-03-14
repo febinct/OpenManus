@@ -1,0 +1,2 @@
+This is a test file created with Manus agent using CodeEditor in direct content mode
+This line was appended
