@@ -1,3 +1,6 @@
 [submodule "aider"]
 	path = aider
 	url = https://github.com/Aider-AI/aider
+[submodule "cline"]
+	path = cline
+	url = https://github.com/cline/cline
