@@ -7,9 +7,8 @@ English | [中文](README_zh.md) | [한국어](README_ko.md) | [日本語](READM
 
 # 👋 OpenManus
 
-Manus is incredible, but OpenManus can achieve any idea without an *Invite Code* 🛫!
-
-Our team members [@Xinbin Liang](https://github.com/mannaandpoem) and [@Jinyu Xiang](https://github.com/XiangJinyu) (core authors), along with [@Zhaoyang Yu](https://github.com/MoshiQAQ), [@Jiayi Zhang](https://github.com/didiforgithub), and [@Sirui Hong](https://github.com/stellaHSR), we are from [@MetaGPT](https://github.com/geekan/MetaGPT). The prototype is launched within 3 hours and we are keeping building!
+Open Manus is an autonomous AI agent built as a wrapper around foundation models. 
+ It operates in a cloud-based virtual computing environment with full access to tools like web browsers, shell commands, and code execution. The system's key innovation is using executable Python code as its action mechanism ("CodeAct" approach), allowing it to perform complex operations autonomously. The architecture consists of an iterative agent loop (analyze → plan → execute → observe), with specialized modules for planning, knowledge retrieval, and memory management. Manus uses file-based memory to track progress and store information across operations.
 
 It's a simple implementation, so we welcome any suggestions, contributions, and feedback!
 

@@ -68,14 +68,8 @@ class Manus(ToolCallAgent):
                     ])
                     
                     # Add MCP tools to the prompt
-                    from app.prompt.manus import NEXT_STEP_PROMPT
-                    tools_intro = "You can interact with the computer using PythonExecute"
-                    mcp_tools_intro = f"You can interact with the computer using PythonExecute and MCP tools like {', '.join(self.mcp_tools.keys())}"
-                    
-                    # Update the prompt
-                    self.next_step_prompt = NEXT_STEP_PROMPT.replace(
-                        tools_intro, mcp_tools_intro
-                    ) + f"\n\n{mcp_tools_desc}"
+                    # Simply append MCP tools description to the prompt
+                    self.next_step_prompt = self.next_step_prompt + f"\n\nAdditional MCP Tools:\n{mcp_tools_desc}"
                     
                 logger.info(f"Initialized {len(self.mcp_tools)} MCP tools")
             else:
@@ -95,14 +89,23 @@ class Manus(ToolCallAgent):
         # Clean up MCP tools if terminating
         if name == "terminate":
             try:
+                # Import mcp_client only if needed
                 from app.mcp.client import mcp_client
-                try:
-                    await mcp_client.stop_servers()
-                except Exception as e:
-                    logger.error(f"Error stopping MCP servers: {e}")
+                
+                # Log that we're shutting down MCP servers
+                logger.info("Shutting down MCP servers")
+                
+                # Call stop_servers directly without wrapping in tasks or timeouts
+                # Let any errors propagate to be handled by the caller
+                await mcp_client.stop_servers()
+                logger.info("MCP servers shutdown complete")
             except ImportError:
-                pass
+                logger.info("MCP client not available")
+            except Exception as e:
+                # Log but don't re-raise - we want to continue with termination
+                logger.warning(f"Error during MCP shutdown (continuing anyway): {e}")
         
+        # Continue with parent class handling
         await super()._handle_special_tool(name, result, **kwargs)
         
     @classmethod
