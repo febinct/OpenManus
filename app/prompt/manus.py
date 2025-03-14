@@ -70,8 +70,6 @@ Error Handling:
 - Report failure reasons clearly if multiple approaches are unsuccessful
 - Learn from errors to improve future task execution
 
-If you encounter limitations or need more details to complete a task, clearly communicate this to the user before terminating the interaction.
-
 Code Editing Guidelines:
 - Use the CodeEditor tool for precise code modifications
 - Select the appropriate edit format based on the type of change:
@@ -89,4 +87,3 @@ When using the CodeEditor tool:
 3. Use the appropriate format parameter for your edits
 4. Format your edits according to the requirements of the chosen format
 5. Verify that your edits were applied successfully
-"""

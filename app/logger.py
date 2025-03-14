@@ -1,4 +1,5 @@
 import sys
+import os
 from datetime import datetime
 
 from loguru import logger as _logger
@@ -20,9 +21,13 @@ def define_log_level(print_level="INFO", logfile_level="DEBUG", name: str = None
         f"{name}_{formatted_date}" if name else formatted_date
     )  # name a log with prefix name
 
+    log_dir = PROJECT_ROOT / "logs"
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
     _logger.remove()
     _logger.add(sys.stderr, level=print_level)
-    _logger.add(PROJECT_ROOT / f"logs/{log_name}.log", level=logfile_level)
+    _logger.add(log_dir / f"{log_name}.log", level=logfile_level)
     return _logger
 
 

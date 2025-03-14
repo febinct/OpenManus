@@ -51,7 +51,10 @@ class BaseFlow(BaseModel, ABC):
 
     def get_agent(self, key: str) -> Optional[BaseAgent]:
         """Get a specific agent by key"""
-        return self.agents.get(key)
+        agent = self.agents.get(key)
+        if agent is None:
+            logger.warning(f"Agent with key '{key}' not found.")
+        return agent
 
     def add_agent(self, key: str, agent: BaseAgent) -> None:
         """Add a new agent to the flow"""

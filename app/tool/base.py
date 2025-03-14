@@ -22,6 +22,8 @@ class BaseTool(ABC, BaseModel):
 
     def to_param(self) -> Dict:
         """Convert tool to function call format."""
+        if not isinstance(self.parameters, dict):
+            raise ValueError("Parameters must be a dictionary.")
         return {
             "type": "function",
             "function": {

@@ -2,6 +2,7 @@ import asyncio
 import uuid
 from datetime import datetime
 from json import dumps
+import os
 
 from fastapi import Body, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -107,6 +108,8 @@ async def run_task(task_id: str, prompt: str):
             description="A versatile agent that can solve various tasks using multiple tools",
             max_steps=30,
         )
+        if not agent:
+            raise RuntimeError("Failed to initialize Manus agent.")
 
         async def on_think(thought):
             await task_manager.update_task_step(task_id, 0, thought, "think")
