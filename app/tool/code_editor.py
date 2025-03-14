@@ -11,19 +11,24 @@ from app.tool.base import BaseTool
 
 
 class EditResult(BaseModel):
-    """Result of a code edit operation"""
+    """Result of a file edit operation"""
     success: bool
     message: str
     edited_files: List[str] = Field(default_factory=list)
 
 
-class CodeEditor(BaseTool):
-    """Advanced code editing tool with multiple edit formats"""
+class FileEditor(BaseTool):
+    """Advanced file editing and creation tool with multiple formats for any file type"""
     
-    name: str = "code_editor"
-    description: str = """Edit code files using specialized formats for precise modifications.
-Can also be used as a direct file saver by providing direct_content and file_path parameters.
-Supports multiple edit formats for different types of code changes."""
+    name: str = "file_editor"
+    description: str = """Edit or create any type of file using specialized formats for precise modifications.
+Supports multiple edit formats for different types of changes:
+1. Whole file mode: Create or replace entire files
+2. Diff mode: Apply search/replace blocks for targeted edits
+3. Unified diff mode: Apply unified diff format changes
+
+Also supports direct file saving by providing content and file_path parameters.
+Can handle any file type, not just code files - text, configuration, data, etc."""
     
     parameters: Dict = {
         "type": "object",
@@ -37,13 +42,13 @@ Supports multiple edit formats for different types of code changes."""
                 "type": "string",
                 "description": "The edits to apply in the specified format"
             },
-            "direct_content": {
+            "content": {
                 "type": "string",
-                "description": "Direct content to save to a file (FileSaver replacement mode)"
+                "description": "Content to save to a file (direct file saving mode)"
             },
             "file_path": {
                 "type": "string",
-                "description": "Path where the direct content should be saved"
+                "description": "Path where the content should be saved"
             },
             "mode": {
                 "type": "string",
@@ -56,13 +61,13 @@ Supports multiple edit formats for different types of code changes."""
     }
     
     async def execute(self, format: str = "diff", edits: str = "", 
-                     direct_content: Optional[str] = None, 
-                     file_path: Optional[str] = None, 
+                     content: Optional[str] = None, 
+                     file_path: Optional[str] = None,
                      mode: str = "w") -> str:
-        """Execute code edits using the specified format or direct content"""
+        """Execute file edits or creation using the specified format or direct content"""
         try:
-            # Direct content mode (FileSaver replacement)
-            if direct_content is not None and file_path is not None:
+            # Direct content mode (file saving)
+            if content is not None and file_path is not None:
                 try:
                     # Create directory if needed
                     directory = os.path.dirname(os.path.abspath(file_path))
@@ -71,13 +76,13 @@ Supports multiple edit formats for different types of code changes."""
                     
                     # Write the file using aiofiles for async I/O
                     async with aiofiles.open(file_path, mode, encoding="utf-8") as f:
-                        await f.write(direct_content)
+                        await f.write(content)
                     
                     return f"Content successfully saved to {file_path}"
                 except Exception as e:
                     return f"Error saving file: {str(e)}"
             
-            # Standard CodeEditor functionality
+            # Standard FileEditor functionality
             if format == "whole":
                 result = await self._apply_whole_file_edits(edits)
             elif format == "udiff":

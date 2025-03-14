@@ -6,12 +6,12 @@ from pydantic import Field
 from app.agent.toolcall import ToolCallAgent
 from app.logger import logger
 from app.mcp.tool import MCPTool, MCPToolRegistry
-from app.prompt.code_editor import CODE_EDITOR_PROMPT
+from app.prompt.code_editor import CODE_EDITOR_PROMPT as FILE_EDITOR_PROMPT
 from app.prompt.manus import NEXT_STEP_PROMPT, SYSTEM_PROMPT
 from app.tool import Terminate, ToolCollection
 from app.tool.ask_human import AskHuman
 from app.tool.browser_use_tool import BrowserUseTool
-from app.tool.code_editor import CodeEditor
+from app.tool.code_editor import FileEditor  # Using FileEditor from code_editor.py
 from app.tool.python_execute import PythonExecute
 from app.tool.repo_map import RepoMapTool
 from app.tool.web_search import WebSearch
@@ -37,12 +37,11 @@ class Manus(ToolCallAgent):
     max_observe: int = 2000
     max_steps: int = 20
 
-    # Add general-purpose tools to the tool collection, including the new CodeEditor and RepoMapTool
-    # Note: FileSaver is replaced by CodeEditor with direct_content functionality
+    # Add general-purpose tools to the tool collection
     available_tools: ToolCollection = Field(
         default_factory=lambda: ToolCollection(
             PythonExecute(), WebSearch(), BrowserUseTool(), 
-            CodeEditor(), RepoMapTool(), AskHuman(), Terminate()
+            FileEditor(), RepoMapTool(), AskHuman(), Terminate()
         )
     )
     
@@ -51,12 +50,12 @@ class Manus(ToolCallAgent):
     
     # Track current edit mode
     current_edit_mode: str = "diff"  # Default to diff mode
-    code_editor_prompt: str = CODE_EDITOR_PROMPT
+    file_editor_prompt: str = FILE_EDITOR_PROMPT
     
     async def initialize(self):
-        """Initialize the agent, including MCP tools and code editing capabilities."""
-        # Add code editing capabilities to the system prompt
-        self.system_prompt = self.system_prompt + "\n\n" + self.code_editor_prompt
+        """Initialize the agent, including MCP tools and file editing capabilities."""
+        # Add file editing capabilities to the system prompt
+        self.system_prompt = self.system_prompt + "\n\n" + self.file_editor_prompt
         
         try:
             # Check if MCP module is available
@@ -92,26 +91,19 @@ class Manus(ToolCallAgent):
             logger.error(f"Failed to initialize MCP tools: {e}")
             self.mcp_tools = {}
             
-        logger.info("Initialized code editing capabilities")
+        logger.info("Initialized file editing capabilities")
 
     async def set_edit_mode(self, mode: str) -> str:
-        """Set the current code editing mode"""
+        """Set the current file editing mode"""
         valid_modes = ["whole", "diff", "udiff"]
         if mode not in valid_modes:
             return f"Invalid edit mode: {mode}. Valid modes are: {', '.join(valid_modes)}"
         
         self.current_edit_mode = mode
-        logger.info(f"Code edit mode set to: {mode}")
+        logger.info(f"File edit mode set to: {mode}")
         return f"Edit mode set to: {mode}"
     
     async def _handle_special_tool(self, name: str, result: Any, **kwargs):
-        # Handle code editor tool
-        if name == "code_editor":
-            # Update the edit mode if specified
-            if "format" in kwargs and kwargs["format"]:
-                self.current_edit_mode = kwargs["format"]
-                logger.info(f"Code edit mode updated to: {self.current_edit_mode}")
-        
         # Clean up browser tool
         await self.available_tools.get_tool(BrowserUseTool().name).cleanup()
         

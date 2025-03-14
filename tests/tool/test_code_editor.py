@@ -1,23 +1,29 @@
 import asyncio
+import os
 from app.tool.code_editor import CodeEditor
 from app.agent.manus import Manus
+
+# Get the current directory (tests/tool)
+TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 
 async def test_code_editor_directly():
     """Test the CodeEditor tool directly"""
     print("\n=== Testing CodeEditor Tool Directly ===")
     
     # Test direct content saving in append mode
+    test_file_path = os.path.join(TEST_DIR, 'test_file.txt')
     result = await CodeEditor().execute(
         direct_content='Appended content',
-        file_path='test_file.txt',
+        file_path=test_file_path,
         mode='a'
     )
     print(result)
     
     # Test whole file format
+    test_whole_path = os.path.join(TEST_DIR, 'test_whole.py')
     result = await CodeEditor().execute(
         format='whole',
-        edits="""test_whole.py
+        edits=f"""{test_whole_path}
 ```python
 print("This is a test file created with whole format")
 ```"""
@@ -25,12 +31,13 @@ print("This is a test file created with whole format")
     print(result)
     
     # Test diff format
-    with open('test_diff.py', 'w') as f:
+    test_diff_path = os.path.join(TEST_DIR, 'test_diff.py')
+    with open(test_diff_path, 'w') as f:
         f.write("# Original content\n\ndef hello():\n    print('Hello')\n")
     
     result = await CodeEditor().execute(
         format='diff',
-        edits="""test_diff.py
+        edits=f"""{test_diff_path}
 ```python
 <<<<<<< SEARCH
 def hello():
@@ -51,11 +58,12 @@ async def test_manus_agent():
     agent = await Manus.create()
     
     # Test direct content saving with CodeEditor through Manus agent
+    test_manus_path = os.path.join(TEST_DIR, 'test_manus_direct.txt')
     result = await agent.available_tools.execute(
         name="code_editor",
         tool_input={
             "direct_content": "This is a test file created with Manus agent using CodeEditor in direct content mode",
-            "file_path": "test_manus_direct.txt"
+            "file_path": test_manus_path
         }
     )
     print(f"Direct content saving result: {result}")
@@ -65,24 +73,25 @@ async def test_manus_agent():
         name="code_editor",
         tool_input={
             "direct_content": "\nThis line was appended",
-            "file_path": "test_manus_direct.txt",
+            "file_path": test_manus_path,
             "mode": "a"
         }
     )
     print(f"Append result: {result}")
     
     # Read the file to verify
-    with open("test_manus_direct.txt", "r") as f:
+    with open(test_manus_path, "r") as f:
         content = f.read()
     print(f"File content: {content}")
     
     # Verify FileSaver is not available
     try:
+        test_file_saver_path = os.path.join(TEST_DIR, 'test_file_saver.txt')
         result = await agent.available_tools.execute(
             name="file_saver",
             tool_input={
                 "content": "This should fail",
-                "file_path": "test_file_saver.txt"
+                "file_path": test_file_saver_path
             }
         )
         print(f"FileSaver result (should not happen): {result}")

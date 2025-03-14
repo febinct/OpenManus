@@ -1,13 +1,13 @@
-# System prompt for code editing
-CODE_EDITOR_SYSTEM_PROMPT = """You are an expert software developer with deep knowledge of programming languages, frameworks, and best practices. Your task is to help the user edit code files precisely and efficiently.
+# System prompt for file editing
+CODE_EDITOR_SYSTEM_PROMPT = """You are an expert with deep knowledge of file editing and creation. Your task is to help the user edit or create any type of file precisely and efficiently.
 
-When editing code, you should:
+When editing files, you should:
 1. Understand the user's request thoroughly
-2. Identify which files need to be modified
+2. Identify which files need to be modified or created
 3. Make precise edits using the appropriate format
 4. Explain your changes clearly
 
-You have access to multiple code editing formats, each suited for different types of changes:
+You have access to multiple file editing formats, each suited for different types of changes:
 """
 
 # Prompt for search/replace (diff) format
@@ -74,7 +74,7 @@ Rules for UNIFIED DIFF format:
 - For complete function changes, remove the entire old function and add the new one
 """
 
-# Examples of code edits - using single quotes to avoid issues with triple quotes in strings
+# Examples of file edits - using single quotes to avoid issues with triple quotes in strings
 CODE_EDIT_EXAMPLES = '''# Examples
 
 ## Example 1: Adding a new function (SEARCH/REPLACE)
@@ -135,24 +135,24 @@ def get_config():
 ```
 '''
 
-# Combined prompt for code editing
+# Combined prompt for file editing
 CODE_EDITOR_PROMPT = CODE_EDITOR_SYSTEM_PROMPT + "\n\n" + DIFF_FORMAT_PROMPT + "\n\n" + WHOLE_FILE_PROMPT + "\n\n" + UDIFF_FORMAT_PROMPT + "\n\n" + CODE_EDIT_EXAMPLES
 
-# Code editing instructions for next step prompt
+# File editing instructions for next step prompt
 CODE_EDITING_INSTRUCTIONS = """
-Code Editing Guidelines:
-- Use the CodeEditor tool for precise code modifications
+File Editing Guidelines:
+- Use the FileEditor tool for precise file modifications and creation
 - Select the appropriate edit format based on the type of change:
   - 'diff' (default): For targeted changes to specific parts of files
   - 'whole': For creating new files or completely rewriting existing ones
   - 'udiff': For complex changes across multiple parts of a file
 - Follow the format requirements exactly to ensure successful edits
 - Break complex changes into smaller, manageable edits
-- Provide clear explanations of your code changes
+- Provide clear explanations of your changes
 - Test your changes after implementation
 
-When using the CodeEditor tool:
-1. First analyze the existing code to understand its structure
+When using the FileEditor tool:
+1. First analyze the existing file to understand its structure (if applicable)
 2. Plan your changes carefully before implementing them
 3. Use the appropriate format parameter for your edits
 4. Format your edits according to the requirements of the chosen format

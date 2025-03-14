@@ -53,7 +53,7 @@ class LLM:
             )
             self.api_version = getattr(llm_config, "api_version", "")
             self.base_url = getattr(llm_config, "base_url", "https://api.openai.com/v1")
-            self.timeout = getattr(llm_config, "timeout", 60)
+            self.timeout = getattr(llm_config, "timeout", 120)
             self.num_retries = getattr(llm_config, "num_retries", 3)
             self.retry_min_wait = getattr(llm_config, "retry_min_wait", 1)
             self.retry_max_wait = getattr(llm_config, "retry_max_wait", 10)
@@ -383,7 +383,7 @@ class LLM:
         self,
         messages: List[Union[dict, Message]],
         system_msgs: Optional[List[Union[dict, Message]]] = None,
-        timeout: int = 60,
+        timeout: int = 120,
         tools: Optional[List[dict]] = None,
         tool_choice: Literal["none", "auto", "required"] = "auto",
         temperature: Optional[float] = None,

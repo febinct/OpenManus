@@ -5,6 +5,7 @@ base_url = "https://api.openai.com/v1" # "https://api.anthropic.com"
 api_key = "sk-..."
 max_tokens = 4096
 temperature = 0.0
+timeout = 120  # Request timeout in seconds
 
 # [llm] #AZURE OPENAI:
 # api_type= 'azure'

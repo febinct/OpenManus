@@ -224,10 +224,14 @@ class MCPClient:
                 except Exception as e:
                     logger.error(f"Error accessing MCP server client {server_name}: {e}")
         
-        # Create a new exit stack without closing the old one
-        # This avoids the cancel scope errors entirely
-        old_exit_stack = self.exit_stack
-        self.exit_stack = AsyncExitStack()
+        # Properly close the exit stack
+        try:
+            await self.exit_stack.aclose()
+        except Exception as e:
+            logger.error(f"Error closing MCP exit stack: {e}")
+        finally:
+            # Create a new exit stack
+            self.exit_stack = AsyncExitStack()
         
         # Log completion
         logger.info("MCP servers shutdown complete")
