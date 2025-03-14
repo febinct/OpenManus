@@ -3,8 +3,8 @@ from enum import Enum
 from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel
-
 from app.agent.base import BaseAgent
+from app.logger import logger  # Added logger import
 
 
 class FlowType(str, Enum):
