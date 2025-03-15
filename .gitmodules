@@ -4,3 +4,6 @@
 [submodule "cline"]
 	path = cline
 	url = https://github.com/cline/cline
+[submodule "repomix"]
+	path = repomix
+	url = https://github.com/yamadashy/repomix
