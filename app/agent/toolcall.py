@@ -1,5 +1,5 @@
 import json
-from typing import Any, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import Field
 
@@ -29,6 +29,9 @@ class ToolCallAgent(ReActAgent):
     special_tool_names: List[str] = Field(default_factory=lambda: [Terminate().name])
 
     tool_calls: List[ToolCall] = Field(default_factory=list)
+    
+    # MCP tools that have been registered
+    mcp_tools: Dict[str, Any] = Field(default_factory=dict)
 
     max_steps: int = 30
     max_observe: Optional[Union[int, bool]] = None
@@ -167,10 +170,65 @@ class ToolCallAgent(ReActAgent):
             logger.error(error_msg)
             return f"Error: {error_msg}"
 
+    async def initialize(self):
+        """Initialize the agent, including MCP tools."""
+        try:
+            # Check if MCP module is available
+            from app.mcp.tool import MCPToolRegistry, HAS_MCP_SDK
+            
+            if HAS_MCP_SDK:
+                # Initialize MCP tools with agent name
+                self.mcp_tools = await MCPToolRegistry.initialize(agent_name=self.name)
+                
+                # Add MCP tools to available tools
+                for tool_name, tool in self.mcp_tools.items():
+                    self.available_tools.add_tool(tool)
+                
+                # Update next_step_prompt to include MCP tools
+                if self.mcp_tools:
+                    mcp_tools_desc = "\n\n".join([
+                        f"{tool.name}: {tool.description} Parameters: {tool.parameters}"
+                        for tool in self.mcp_tools.values()
+                    ])
+                    
+                    # Add MCP tools to the prompt
+                    # Simply append MCP tools description to the prompt
+                    self.next_step_prompt = self.next_step_prompt + f"\n\nAdditional MCP Tools:\n{mcp_tools_desc}"
+                    
+                logger.info(f"Initialized {len(self.mcp_tools)} MCP tools for agent {self.name}")
+            else:
+                logger.info("MCP SDK not installed. MCP tools will not be available.")
+                self.mcp_tools = {}
+        except ImportError:
+            logger.info("MCP module not available. MCP tools will not be used.")
+            self.mcp_tools = {}
+        except Exception as e:
+            logger.error(f"Failed to initialize MCP tools: {e}")
+            self.mcp_tools = {}
+
     async def _handle_special_tool(self, name: str, result: Any, **kwargs):
         """Handle special tool execution and state changes"""
         if not self._is_special_tool(name):
             return
+
+        # Clean up MCP tools if terminating
+        if name == "terminate":
+            try:
+                # Import mcp_client only if needed
+                from app.mcp.client import mcp_client
+                
+                # Log that we're shutting down MCP servers
+                logger.info("Shutting down MCP servers")
+                
+                # Call stop_servers directly without wrapping in tasks or timeouts
+                # Let any errors propagate to be handled by the caller
+                await mcp_client.stop_servers()
+                logger.info("MCP servers shutdown complete")
+            except ImportError:
+                logger.info("MCP client not available")
+            except Exception as e:
+                # Log but don't re-raise - we want to continue with termination
+                logger.warning(f"Error during MCP shutdown (continuing anyway): {e}")
 
         if self._should_finish_execution(name=name, result=result, **kwargs):
             # Set agent state to finished
@@ -185,3 +243,10 @@ class ToolCallAgent(ReActAgent):
     def _is_special_tool(self, name: str) -> bool:
         """Check if tool name is in special tools list"""
         return name.lower() in [n.lower() for n in self.special_tool_names]
+        
+    @classmethod
+    async def create(cls, **kwargs):
+        """Create and initialize a new agent."""
+        agent = cls(**kwargs)
+        await agent.initialize()
+        return agent

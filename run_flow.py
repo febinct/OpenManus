@@ -7,9 +7,13 @@ from app.flow.flow_factory import FlowFactory
 from app.logger import logger
 
 
+
 async def run_flow():
+    # Create and initialize the Manus agent properly
+    manus_agent = await Manus.create()
+    
     agents = {
-        "manus": Manus(),
+        "manus": manus_agent,
     }
 
     try:
@@ -47,4 +51,16 @@ async def run_flow():
 
 
 if __name__ == "__main__":
-    asyncio.run(run_flow())
+    try:
+        asyncio.run(run_flow())
+    except RuntimeError as e:
+        # Ignore known MCP SDK errors during shutdown
+        if any(err_text in str(e) for err_text in [
+            "Attempted to exit cancel scope in a different task",
+            "Event loop is closed"
+        ]):
+            pass  # Silently ignore these errors
+        else:
+            logger.error(f"Runtime error: {e}")
+    except Exception as e:
+        logger.error(f"Unhandled exception: {e}")

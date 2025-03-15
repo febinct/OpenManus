@@ -7,7 +7,18 @@
         "API_KEY": "your-api-key-here"
       },
       "disabled": true,
-      "autoApprove": []
+      "autoApprove": [],
+      "agents": ["planning"]
+    },
+    "example-restricted-server": {
+      "command": "python",
+      "args": ["/path/to/restricted-server.py"],
+      "env": {
+        "API_KEY": "your-api-key-here"
+      },
+      "disabled": true,
+      "autoApprove": [],
+      "agents": ["manus"]
     }
   }
 }

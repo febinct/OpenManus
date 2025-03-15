@@ -54,6 +54,7 @@ class MCPServer(BaseModel):
     env: Dict[str, str] = Field(default_factory=dict)
     disabled: bool = False
     autoApprove: List[str] = Field(default_factory=list)
+    agents: List[str] = Field(default_factory=lambda: ["all"])
     
     process: Optional[subprocess.Popen] = None
     tools: List[MCPToolSchema] = Field(default_factory=list)
@@ -127,6 +128,9 @@ class MCPClient:
                                     f"Auto-approving tools that execute code can be a security risk."
                                 )
                     
+                    # Get agents list
+                    agents = server_config.get("agents", ["all"])
+                    
                     server = MCPServer(
                         name=server_name,
                         command=server_config["command"],
@@ -134,6 +138,7 @@ class MCPClient:
                         env=server_config.get("env", {}),
                         disabled=server_config.get("disabled", False),
                         autoApprove=auto_approve,
+                        agents=agents,
                     )
                     
                     self.servers[server_name] = server

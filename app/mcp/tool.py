@@ -114,8 +114,15 @@ class MCPToolRegistry:
     """Registry for MCP tools."""
     
     @staticmethod
-    async def initialize() -> Dict[str, MCPTool]:
-        """Initialize MCP tools from all servers."""
+    async def initialize(agent_name: str = "all") -> Dict[str, MCPTool]:
+        """Initialize MCP tools from servers.
+        
+        Args:
+            agent_name: Name of the agent to initialize tools for. If "all", initialize for all agents.
+            
+        Returns:
+            Dictionary of MCP tools.
+        """
         if not HAS_MCP_SDK:
             logger.warning("MCP SDK not installed. MCP tools will not be available.")
             return {}
@@ -127,6 +134,17 @@ class MCPToolRegistry:
         
         # Create tools for each server
         for server_name, server in mcp_client.servers.items():
+            # Check if this server should be available for this agent
+            # Get agents list from the server config in mcp_config.json
+            allowed_agents = getattr(server, "agents", ["all"])
+            
+            logger.info(f"Server {server_name} allowed agents: {allowed_agents}, agent_name: {agent_name}")
+            
+            # Skip if this server is not allowed for this agent
+            if agent_name != "all" and agent_name not in allowed_agents and "all" not in allowed_agents:
+                logger.info(f"Skipping MCP server {server_name} (not allowed for agent {agent_name})")
+                continue
+                
             for mcp_tool in server.tools:
                 try:
                     tool = MCPTool(
@@ -134,7 +152,7 @@ class MCPToolRegistry:
                         tool_name=mcp_tool.name,
                     )
                     tools[tool.name] = tool
-                    logger.info(f"Registered MCP tool: {tool.name}")
+                    logger.info(f"Registered MCP tool: {tool.name} for agent {agent_name}")
                 except Exception as e:
                     logger.error(f"Failed to register MCP tool {mcp_tool.name}: {e}")
         
