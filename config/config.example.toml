@@ -50,3 +50,8 @@ temperature = 0.0
 # [search]
 # Search engine for agent to use. Default is "Google" can be set to "Baidu" or "DuckDuckGo".
 #engine = "Google"
+
+# Output directory configuration
+# [output]
+# Directory for output files, relative to project root
+#directory = "output"

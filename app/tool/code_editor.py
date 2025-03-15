@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Set, Tuple, Union
 import aiofiles
 from pydantic import BaseModel, Field
 
+from app.config import OUTPUT_ROOT
 from app.tool.base import BaseTool
 
 
@@ -22,6 +23,9 @@ class FileEditor(BaseTool):
     
     name: str = "file_editor"
     description: str = """Edit or create any type of file using specialized formats for precise modifications.
+By default, files are saved to the configured output directory (set in config.toml).
+You can specify a relative path within the output directory, or set use_output_dir=False to save to an absolute path.
+
 Supports multiple edit formats for different types of changes:
 
 1. DIFF MODE (format="diff"): For targeted edits to specific parts of files
@@ -88,6 +92,11 @@ Can handle any type of file - code, configuration, data, text, etc."""
                 "enum": ["w", "a"],
                 "description": "File opening mode: 'w' for write (default), 'a' for append",
                 "default": "w"
+            },
+            "use_output_dir": {
+                "type": "boolean",
+                "description": "(optional) Whether to save the file in the configured output directory. Default is True.",
+                "default": True
             }
         },
         "required": []
@@ -96,32 +105,41 @@ Can handle any type of file - code, configuration, data, text, etc."""
     async def execute(self, format: str = "diff", edits: str = "", 
                      content: Optional[str] = None, 
                      file_path: Optional[str] = None,
-                     mode: str = "w") -> str:
+                     mode: str = "w",
+                     use_output_dir: bool = True) -> str:
         """Execute file edits or creation using the specified format or direct content"""
         try:
             # Direct content mode (file saving)
             if content is not None and file_path is not None:
                 try:
+                    # Determine the full file path
+                    if use_output_dir:
+                        # Use the configured output directory
+                        full_path = OUTPUT_ROOT / file_path
+                    else:
+                        # Use the exact path specified
+                        full_path = Path(file_path)
+                    
                     # Create directory if needed
-                    directory = os.path.dirname(os.path.abspath(file_path))
+                    directory = os.path.dirname(str(full_path))
                     if directory:
                         os.makedirs(directory, exist_ok=True)
                     
                     # Write the file using aiofiles for async I/O
-                    async with aiofiles.open(file_path, mode, encoding="utf-8") as f:
+                    async with aiofiles.open(full_path, mode, encoding="utf-8") as f:
                         await f.write(content)
                     
-                    return f"Content successfully saved to {file_path}"
+                    return f"Content successfully saved to {full_path}"
                 except Exception as e:
                     return f"Error saving file: {str(e)}"
             
             # Standard FileEditor functionality
             if format == "whole":
-                result = await self._apply_whole_file_edits(edits)
+                result = await self._apply_whole_file_edits(edits, use_output_dir)
             elif format == "udiff":
-                result = await self._apply_udiff_edits(edits)
+                result = await self._apply_udiff_edits(edits, use_output_dir)
             else:  # default to diff (search/replace blocks)
-                result = await self._apply_diff_edits(edits)
+                result = await self._apply_diff_edits(edits, use_output_dir)
                 
             if result.success:
                 return f"Successfully edited files: {', '.join(result.edited_files)}\n{result.message}"
@@ -130,7 +148,7 @@ Can handle any type of file - code, configuration, data, text, etc."""
         except Exception as e:
             return f"Error: {str(e)}"
     
-    async def _apply_whole_file_edits(self, edits: str) -> EditResult:
+    async def _apply_whole_file_edits(self, edits: str, use_output_dir: bool = True) -> EditResult:
         """Apply whole file edits"""
         edited_files = []
         errors = []
@@ -147,14 +165,22 @@ Can handle any type of file - code, configuration, data, text, etc."""
         for filename, content in file_blocks:
             filename = filename.strip()
             try:
+                # Determine the full file path
+                if use_output_dir:
+                    # Use the configured output directory
+                    full_path = OUTPUT_ROOT / filename
+                else:
+                    # Use the exact path specified
+                    full_path = Path(filename)
+                
                 # Create directory if it doesn't exist
-                os.makedirs(os.path.dirname(os.path.abspath(filename)), exist_ok=True)
+                os.makedirs(os.path.dirname(str(full_path)), exist_ok=True)
                 
                 # Write the file
-                with open(filename, 'w') as f:
+                with open(full_path, 'w') as f:
                     f.write(content)
                 
-                edited_files.append(filename)
+                edited_files.append(str(full_path))
             except Exception as e:
                 errors.append(f"Error writing {filename}: {str(e)}")
         
@@ -171,7 +197,7 @@ Can handle any type of file - code, configuration, data, text, etc."""
             edited_files=edited_files
         )
     
-    async def _apply_diff_edits(self, edits: str) -> EditResult:
+    async def _apply_diff_edits(self, edits: str, use_output_dir: bool = True) -> EditResult:
         """Apply search/replace block edits"""
         edited_files = []
         errors = []
@@ -187,31 +213,43 @@ Can handle any type of file - code, configuration, data, text, etc."""
         
         for filename, search_text, replace_text in blocks:
             try:
+                # Determine the full file path
+                if use_output_dir:
+                    # Use the configured output directory
+                    full_path = OUTPUT_ROOT / filename
+                else:
+                    # Use the exact path specified
+                    full_path = Path(filename)
+                
                 # Check if file exists
-                if not os.path.exists(filename) and not search_text.strip():
+                if not os.path.exists(full_path) and not search_text.strip():
                     # Creating a new file
-                    os.makedirs(os.path.dirname(os.path.abspath(filename)), exist_ok=True)
-                    with open(filename, 'w') as f:
+                    os.makedirs(os.path.dirname(str(full_path)), exist_ok=True)
+                    with open(full_path, 'w') as f:
                         f.write(replace_text)
-                    edited_files.append(filename)
+                    edited_files.append(str(full_path))
                     continue
                 
+                # For existing files, we need to check the original path
+                # since we're modifying existing files
+                file_to_read = filename if os.path.exists(filename) else full_path
+                
                 # Read existing file
-                with open(filename, 'r') as f:
+                with open(file_to_read, 'r') as f:
                     content = f.read()
                 
                 # Apply the edit
                 new_content = self._replace_text(content, search_text, replace_text)
                 
                 if new_content == content:
-                    errors.append(f"No changes made to {filename} - search text not found")
+                    errors.append(f"No changes made to {full_path} - search text not found")
                     continue
                 
                 # Write the updated content
-                with open(filename, 'w') as f:
+                with open(full_path, 'w') as f:
                     f.write(new_content)
                 
-                edited_files.append(filename)
+                edited_files.append(str(full_path))
             except Exception as e:
                 errors.append(f"Error editing {filename}: {str(e)}")
         
@@ -228,7 +266,7 @@ Can handle any type of file - code, configuration, data, text, etc."""
             edited_files=edited_files
         )
     
-    async def _apply_udiff_edits(self, edits: str) -> EditResult:
+    async def _apply_udiff_edits(self, edits: str, use_output_dir: bool = True) -> EditResult:
         """Apply unified diff edits"""
         edited_files = []
         errors = []
@@ -251,27 +289,39 @@ Can handle any type of file - code, configuration, data, text, etc."""
                     errors.append("Could not determine filename from diff")
                     continue
                 
+                # Determine the full file path
+                if use_output_dir:
+                    # Use the configured output directory
+                    full_path = OUTPUT_ROOT / filename
+                else:
+                    # Use the exact path specified
+                    full_path = Path(filename)
+                
                 # Check if file exists
-                if not os.path.exists(filename) and filename != '/dev/null':
+                if not os.path.exists(full_path) and filename != '/dev/null':
                     # Creating a new file
-                    os.makedirs(os.path.dirname(os.path.abspath(filename)), exist_ok=True)
-                    with open(filename, 'w') as f:
+                    os.makedirs(os.path.dirname(str(full_path)), exist_ok=True)
+                    with open(full_path, 'w') as f:
                         f.write('\n'.join(line[1:] for line in changes if line.startswith('+')))
-                    edited_files.append(filename)
+                    edited_files.append(str(full_path))
                     continue
                 
+                # For existing files, we need to check the original path
+                # since we're modifying existing files
+                file_to_read = filename if os.path.exists(filename) else full_path
+                
                 # Read existing file
-                with open(filename, 'r') as f:
+                with open(file_to_read, 'r') as f:
                     content = f.read().splitlines()
                 
                 # Apply the diff
                 new_content = self._apply_diff_changes(content, changes)
                 
                 # Write the updated content
-                with open(filename, 'w') as f:
+                with open(full_path, 'w') as f:
                     f.write('\n'.join(new_content))
                 
-                edited_files.append(filename)
+                edited_files.append(str(full_path))
             except Exception as e:
                 errors.append(f"Error applying diff: {str(e)}")
         

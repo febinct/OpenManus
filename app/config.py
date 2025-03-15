@@ -58,6 +58,10 @@ class BrowserSettings(BaseModel):
     )
 
 
+class OutputSettings(BaseModel):
+    directory: str = Field("output", description="Directory for output files")
+
+
 class AppConfig(BaseModel):
     llm: Dict[str, LLMSettings]
     browser_config: Optional[BrowserSettings] = Field(
@@ -65,6 +69,9 @@ class AppConfig(BaseModel):
     )
     search_config: Optional[SearchSettings] = Field(
         None, description="Search configuration"
+    )
+    output_config: Optional[OutputSettings] = Field(
+        None, description="Output configuration"
     )
 
     class Config:
@@ -163,6 +170,12 @@ class Config:
         if search_config:
             search_settings = SearchSettings(**search_config)
 
+        # Parse output configuration
+        output_config = raw_config.get("output", {})
+        output_settings = None
+        if output_config:
+            output_settings = OutputSettings(**output_config)
+
         config_dict = {
             "llm": {
                 "default": default_settings,
@@ -173,6 +186,7 @@ class Config:
             },
             "browser_config": browser_settings,
             "search_config": search_settings,
+            "output_config": output_settings,
         }
 
         self._config = AppConfig(**config_dict)
@@ -188,6 +202,27 @@ class Config:
     @property
     def search_config(self) -> Optional[SearchSettings]:
         return self._config.search_config
+        
+    @property
+    def output_config(self) -> Optional[OutputSettings]:
+        return self._config.output_config
 
 
 config = Config()
+
+# Define a function to get the output directory path
+def get_output_directory() -> Path:
+    """Get the configured output directory path"""
+    output_config = config.output_config
+    if output_config and output_config.directory:
+        output_dir = Path(output_config.directory)
+        # If it's a relative path, make it relative to the project root
+        if not output_dir.is_absolute():
+            output_dir = PROJECT_ROOT / output_dir
+        return output_dir
+    # Default to workspace directory if not configured
+    return WORKSPACE_ROOT
+
+# Create the output directory if it doesn't exist
+OUTPUT_ROOT = get_output_directory()
+OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
