@@ -39,7 +39,7 @@ class Manus(ToolCallAgent):
     available_tools: ToolCollection = Field(
         default_factory=lambda: ToolCollection(
             PythonExecute(), WebSearch(), BrowserUseTool(), 
-            FileEditor(), RepoMapTool(), AskHuman(), Terminate()
+            FileEditor(), AskHuman(), Terminate()
         )
     )
     

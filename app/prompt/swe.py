@@ -15,6 +15,7 @@ To call a command, you need to invoke it with a function call/tool call.
 AVAILABLE TOOLS:
 - Bash: Execute shell commands to interact with the file system, run programs, and manage processes
 - StrReplaceEditor: Edit files with proper indentation and formatting
+- AiderTool: Use Aider, an AI pair programming tool, to assist with coding tasks, refactoring, bug fixing, and more
 - Terminate: End the current session when the task is complete
 
 CODE QUALITY GUIDELINES:

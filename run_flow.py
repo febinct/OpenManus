@@ -1,7 +1,9 @@
 import asyncio
+import argparse
 import time
 
 from app.agent.manus import Manus
+from app.agent.swe import SWEAgent
 from app.flow.base import FlowType
 from app.flow.flow_factory import FlowFactory
 from app.logger import logger
@@ -9,12 +11,21 @@ from app.logger import logger
 
 
 async def run_flow():
-    # Create and initialize the Manus agent properly
-    manus_agent = await Manus.create()
     
-    agents = {
+    # Create and initialize all available agents
+    manus_agent = await Manus.create()
+    swe_agent = await SWEAgent().create()
+    
+    # Create a dictionary of all agents
+    all_agents = {
         "manus": manus_agent,
+        "swe": swe_agent,
     }
+    
+
+    
+    # Use the selected agent for the flow
+    agents = all_agents
 
     try:
         prompt = input("Enter your prompt: ")

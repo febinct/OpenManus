@@ -1,3 +1,4 @@
+from app.tool.aider_tool import AiderTool
 from app.tool.base import BaseTool
 from app.tool.bash import Bash
 from app.tool.code_editor import FileEditor
@@ -10,6 +11,7 @@ from app.tool.tool_collection import ToolCollection
 
 
 __all__ = [
+    "AiderTool",
     "BaseTool",
     "Bash",
     "FileEditor",
