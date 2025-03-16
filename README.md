@@ -7,19 +7,108 @@ English | [中文](README_zh.md) | [한국어](README_ko.md) | [日本語](READM
 
 # 👋 OpenManus
 
-OpenManus is an autonomous AI agent built as a wrapper around foundation models. It operates in a cloud-based virtual computing environment with full access to tools like web browsers, shell commands, and code execution. The system's key innovation is using executable Python code as its action mechanism ("CodeAct" approach), allowing it to perform complex operations autonomously. The architecture consists of an iterative agent loop (analyze → plan → execute → observe), with specialized modules for planning, knowledge retrieval, and memory management. Manus uses file-based memory to track progress and store information across operations.
+OpenManus is an autonomous AI agent that can perform complex tasks by interacting with your computer. It uses large language models (LLMs) to understand your instructions and execute them using tools like web browsers, shell commands, and code editors.
+
+## Quick Start
+
+Want to see OpenManus in action? Here's a simple example that creates a text file:
+
+1.  **Installation:**
+
+    We provide two installation methods. Method 2 (using uv) is recommended for faster installation and better dependency management.
+
+    ### Method 1: Using conda
+
+    1.  Create a new conda environment:
+
+        ```bash
+        conda create -n open_manus python=3.12
+        conda activate open_manus
+        ```
+
+    2.  Clone the repository:
+
+        ```bash
+        git clone https://github.com/mannaandpoem/OpenManus.git
+        cd OpenManus
+        ```
+
+    3.  Install dependencies:
+
+        ```bash
+        pip install -r requirements.txt
+        ```
+
+    ### Method 2: Using uv (Recommended)
+
+    1.  Install uv (A fast Python package installer and resolver):
+
+        ```bash
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        ```
+
+    2.  Clone the repository:
+
+        ```bash
+        git clone https://github.com/mannaandpoem/OpenManus.git
+        cd OpenManus
+        ```
+
+    3.  Create a new virtual environment and activate it:
+
+        ```bash
+        uv venv
+        source .venv/bin/activate  # On Unix/macOS
+        # Or on Windows:
+        # .venv\Scripts\activate
+        ```
+
+    4.  Install dependencies:
+
+        ```bash
+        uv pip install -r requirements.txt
+        ```
+
+2.  **Configuration:**
+
+    *   Create a `config.toml` file in the `config` directory:
+
+        ```bash
+        cp config/config.example.toml config/config.toml
+        ```
+
+    *   Edit `config/config.toml` and add your OpenAI API key:
+
+        ```toml
+        [llm]
+        model = "gpt-4o"
+        base_url = "https://api.openai.com/v1"
+        api_key = "sk-..."  # Replace with your actual API key
+        max_tokens = 4096
+        temperature = 0.0
+        ```
+3. **Run OpenManus:**
+   ```bash
+    python main.py
+   ```
+4. **Input the following instruction in the terminal:**
+   ```
+    Create a file named 'hello.txt' in the workspace directory and write 'Hello, OpenManus!' into it.
+   ```
+
+OpenManus will create the file and write the text into it. You can find the file in the `workspace` directory.
 
 ## Key Features
+
+- **Versatile File Operations**: The enhanced CodeEditor tool handles all file operations:
+  - Create, modify, or save any type of file (code, text, data, etc.)
+  - Support for both write and append modes
+  - Automatic directory creation
 
 - **Advanced Code Editing**: OpenManus features powerful code editing capabilities with multiple formats:
   - **Diff Format**: Make targeted changes to specific parts of files using SEARCH/REPLACE blocks
   - **Whole Format**: Create new files or completely rewrite existing ones
   - **Unified Diff Format**: Apply complex changes across multiple parts of a file
-  
-- **Versatile File Operations**: The enhanced CodeEditor tool handles all file operations:
-  - Create, modify, or save any type of file (code, text, data, etc.)
-  - Support for both write and append modes
-  - Automatic directory creation
 
 - **Repository Mapping**: Generate comprehensive maps of code repositories to understand structure and relationships
 
@@ -48,6 +137,13 @@ OpenManus is an autonomous AI agent built as a wrapper around foundation models.
   - **PlanningAgent**: An agent focused on creating and managing plans
   - **SWEAgent**: An autonomous AI programmer for software engineering tasks
 
+## Use Cases
+- **Automate repetitive tasks:**  Automate file manipulations, data processing, and other tasks.
+- **Rapid prototyping:** Quickly create and test code snippets or scripts.
+- **Web scraping and data extraction:** Gather information from websites.
+- **Code refactoring and improvement:**  Make targeted changes to existing code.
+- **Learning and experimentation:** Explore new libraries and APIs.
+
 It's a simple implementation, so we welcome any suggestions, contributions, and feedback!
 
 Enjoy your own agent with OpenManus!
@@ -57,135 +153,6 @@ We're also excited to introduce [OpenManus-RL](https://github.com/OpenManus/Open
 ## Project Demo
 
 <video src="https://private-user-images.githubusercontent.com/61239030/420168772-6dcfd0d2-9142-45d9-b74e-d10aa75073c6.mp4?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NDEzMTgwNTksIm5iZiI6MTc0MTMxNzc1OSwicGF0aCI6Ii82MTIzOTAzMC80MjAxNjg3NzItNmRjZmQwZDItOTE0Mi00NWQ5LWI3NGUtZDEwYWE3NTA3M2M2Lm1wND9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTAzMDclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwMzA3VDAzMjIzOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTdiZjFkNjlmYWNjMmEzOTliM2Y3M2VlYjgyNDRlZDJmOWE3NWZhZjE1MzhiZWY4YmQ3NjdkNTYwYTU5ZDA2MzYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.UuHQCgWYkh0OQq9qsUWqGsUbhG3i9jcZDAMeHjLt5T4" data-canonical-src="https://private-user-images.githubusercontent.com/61239030/420168772-6dcfd0d2-9142-45d9-b74e-d10aa75073c6.mp4?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NDEzMTgwNTksIm5iZiI6MTc0MTMxNzc1OSwicGF0aCI6Ii82MTIzOTAzMC80MjAxNjg3NzItNmRjZmQwZDItOTE0Mi00NWQ5LWI3NGUtZDEwYWE3NTA3M2M2Lm1wND9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTAzMDclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwMzA3VDAzMjIzOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTdiZjFkNjlmYWNjMmEzOTliM2Y3M2VlYjgyNDRlZDJmOWE3NWZhZjE1MzhiZWY4YmQ3NjdkNTYwYTU5ZDA2MzYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.UuHQCgWYkh0OQq9qsUWqGsUbhG3i9jcZDAMeHjLt5T4" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
-
-## Installation
-
-We provide two installation methods. Method 2 (using uv) is recommended for faster installation and better dependency management.
-
-### Method 1: Using conda
-
-1. Create a new conda environment:
-
-```bash
-conda create -n open_manus python=3.12
-conda activate open_manus
-```
-
-2. Clone the repository:
-
-```bash
-git clone https://github.com/mannaandpoem/OpenManus.git
-cd OpenManus
-```
-
-3. Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-### Method 2: Using uv (Recommended)
-
-1. Install uv (A fast Python package installer and resolver):
-
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-2. Clone the repository:
-
-```bash
-git clone https://github.com/mannaandpoem/OpenManus.git
-cd OpenManus
-```
-
-3. Create a new virtual environment and activate it:
-
-```bash
-uv venv
-source .venv/bin/activate  # On Unix/macOS
-# Or on Windows:
-# .venv\Scripts\activate
-```
-
-4. Install dependencies:
-
-```bash
-uv pip install -r requirements.txt
-```
-
-## Configuration
-
-OpenManus requires configuration for the LLM APIs it uses. Follow these steps to set up your configuration:
-
-1. Create a `config.toml` file in the `config` directory (you can copy from the example):
-
-```bash
-cp config/config.example.toml config/config.toml
-```
-
-2. Edit `config/config.toml` to add your API keys and customize settings:
-
-```toml
-# Global LLM configuration
-[llm]
-model = "gpt-4o"
-base_url = "https://api.openai.com/v1"
-api_key = "sk-..."  # Replace with your actual API key
-max_tokens = 4096
-temperature = 0.0
-
-# Optional configuration for specific LLM models
-[llm.vision]
-model = "gpt-4o"
-base_url = "https://api.openai.com/v1"
-api_key = "sk-..."  # Replace with your actual API key
-```
-
-### MCP Configuration (Optional)
-
-If you want to use MCP servers with OpenManus, you'll need to configure them:
-
-1. Create a `mcp_config.json` file in the `config` directory:
-
-```bash
-cp config/mcp_config.example.json config/mcp_config.json
-```
-
-2. Edit `config/mcp_config.json` to add your MCP server configurations:
-
-```json
-{
-  "mcpServers": {
-    "server-name": {
-      "command": "command-to-run-server",
-      "args": ["arg1", "arg2"],
-      "env": {
-        "ENV_VAR1": "value1",
-        "ENV_VAR2": "value2"
-      },
-      "disabled": false,
-      "autoApprove": []
-    }
-  }
-}
-```
-
-## Quick Start
-
-One line for run OpenManus:
-
-```bash
-python main.py
-```
-
-Then input your idea via terminal!
-
-For unstable version, you also can run:
-
-```bash
-python run_flow.py
-```
 
 ### Using OpenManus Server
 
