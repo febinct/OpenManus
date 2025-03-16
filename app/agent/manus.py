@@ -38,11 +38,11 @@ class Manus(ToolCallAgent):
     # Add general-purpose tools to the tool collection
     available_tools: ToolCollection = Field(
         default_factory=lambda: ToolCollection(
-            PythonExecute(), WebSearch(), BrowserUseTool(), 
+            PythonExecute(), WebSearch(), BrowserUseTool(),
             FileEditor(), AskHuman(), Terminate()
         )
     )
-    
+
     # Track current edit mode
     current_edit_mode: str = "diff"  # Default to diff mode
 
@@ -51,14 +51,14 @@ class Manus(ToolCallAgent):
         valid_modes = ["whole", "diff", "udiff"]
         if mode not in valid_modes:
             return f"Invalid edit mode: {mode}. Valid modes are: {', '.join(valid_modes)}"
-        
+
         self.current_edit_mode = mode
         logger.info(f"File edit mode set to: {mode}")
         return f"Edit mode set to: {mode}"
-    
+
     async def _handle_special_tool(self, name: str, result: Any, **kwargs):
-        # Clean up browser tool
-        await self.available_tools.get_tool(BrowserUseTool().name).cleanup()
-        
-        # Continue with parent class handling
-        await super()._handle_special_tool(name, result, **kwargs)
+        if not self._is_special_tool(name):
+            return
+        else:
+            await self.available_tools.get_tool(BrowserUseTool().name).cleanup()
+            await super()._handle_special_tool(name, result, **kwargs)

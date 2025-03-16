@@ -16,6 +16,14 @@ timeout = 120  # Request timeout in seconds
 # temperature = 0.0
 # api_version="AZURE API VERSION" #"2024-08-01-preview"
 
+# [llm] #OLLAMA:
+# api_type = 'ollama'
+# model = "llama3.2"
+# base_url = "http://localhost:11434/v1"
+# api_key = "ollama"
+# max_tokens = 4096
+# temperature = 0.0
+
 # Optional configuration for specific LLM models
 [llm.vision]
 model = "gpt-4o" # "claude-3-5-sonnet"

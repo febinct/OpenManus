@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import Field
 
 from app.agent.react import ReActAgent
+from app.exceptions import TokenLimitExceeded
 from app.logger import logger
 from app.prompt.toolcall import NEXT_STEP_PROMPT, SYSTEM_PROMPT
 from app.schema import TOOL_CHOICE_TYPE, AgentState, Message, ToolCall, ToolChoice
@@ -42,15 +43,34 @@ class ToolCallAgent(ReActAgent):
             user_msg = Message.user_message(self.next_step_prompt)
             self.messages += [user_msg]
 
-        # Get response with tool options
-        response = await self.llm.ask_tool(
-            messages=self.messages,
-            system_msgs=[Message.system_message(self.system_prompt)]
-            if self.system_prompt
-            else None,
-            tools=self.available_tools.to_params(),
-            tool_choice=self.tool_choices,
-        )
+        try:
+            # Get response with tool options
+            response = await self.llm.ask_tool(
+                messages=self.messages,
+                system_msgs=[Message.system_message(self.system_prompt)]
+                if self.system_prompt
+                else None,
+                tools=self.available_tools.to_params(),
+                tool_choice=self.tool_choices,
+            )
+        except ValueError:
+            raise
+        except Exception as e:
+            # Check if this is a RetryError containing TokenLimitExceeded
+            if hasattr(e, "__cause__") and isinstance(e.__cause__, TokenLimitExceeded):
+                token_limit_error = e.__cause__
+                logger.error(
+                    f"🚨 Token limit error (from RetryError): {token_limit_error}"
+                )
+                self.memory.add_message(
+                    Message.assistant_message(
+                        f"Maximum token limit reached, cannot continue execution: {str(token_limit_error)}"
+                    )
+                )
+                self.state = AgentState.FINISHED
+                return False
+            raise
+
         self.tool_calls = response.tool_calls
 
         # Log response info

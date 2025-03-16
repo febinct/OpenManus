@@ -1,0 +1,131 @@
+name: PR Diff Summarization
+# on:
+#   pull_request:
+#     branches: [main]
+#     types: [opened, ready_for_review, reopened]
+#   issue_comment:
+#     types: [created]
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  pr-diff-summarization:
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'pull_request') ||
+      (github.event_name == 'issue_comment' &&
+       contains(github.event.comment.body, '!pr-diff') &&
+       (github.event.comment.author_association == 'COLLABORATOR' || github.event.comment.author_association == 'MEMBER' || github.event.comment.author_association == 'OWNER') &&
+       github.event.issue.pull_request)
+    steps:
+      - name: Get PR head SHA
+        id: get-pr-sha
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "pr_sha=${{ github.event.pull_request.head.sha }}" >> $GITHUB_OUTPUT
+            echo "Retrieved PR head SHA: ${{ github.event.pull_request.head.sha }}"
+          else
+            PR_URL="${{ github.event.issue.pull_request.url }}"
+            SHA=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $PR_URL | jq -r '.head.sha')
+            echo "pr_sha=$SHA" >> $GITHUB_OUTPUT
+            echo "Retrieved PR head SHA from API: $SHA"
+          fi
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.get-pr-sha.outputs.pr_sha }}
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install openai requests
+      - name: Create and run Python script
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
+        run: |-
+          cat << 'EOF' > /tmp/_workflow_core.py
+          import os
+          import subprocess
+          import json
+          import requests
+          from openai import OpenAI
+
+          def get_diff():
+              result = subprocess.run(
+                  ['git', 'diff', 'origin/main...HEAD'],
+                  capture_output=True, text=True, check=True)
+              return '\n'.join(
+                  line for line in result.stdout.split('\n')
+                  if any(line.startswith(c) for c in ('+', '-'))
+                  and not line.startswith(('---', '+++'))
+              )[:round(200000 * 0.4)]  # Truncate to prevent overflow
+
+          def generate_comment(diff_content):
+              client = OpenAI(
+                  base_url=os.getenv("OPENAI_BASE_URL"),
+                  api_key=os.getenv("OPENAI_API_KEY")
+              )
+
+              guidelines = '''
+          1. English version first, Chinese Simplified version after
+          2. Example format:
+              # Diff Report
+              ## English
+              - Added `ABC` class
+              - Fixed `f()` behavior in `foo` module
+
+              ### Comments Highlight
+              - `config.toml` needs to be configured properly to make sure new features work as expected.
+
+              ### Spelling/Offensive Content Check
+              - No spelling mistakes or offensive content found in the code or comments.
+          3. Highlight non-English comments
+          4. Check for spelling/offensive content'''
+
+              response = client.chat.completions.create(
+                  model="o3-mini",
+                  messages=[{
+                      "role": "system",
+                      "content": "Generate bilingual code review feedback."
+                  }, {
+                      "role": "user",
+                      "content": f"Review these changes per guidelines:\n{guidelines}\n\nDIFF:\n{diff_content}"
+                  }]
+              )
+              return response.choices[0].message.content
+
+          def post_comment(comment):
+              repo = os.getenv("GITHUB_REPOSITORY")
+              pr_number = os.getenv("PR_NUMBER")
+
+              headers = {
+                  "Authorization": f"Bearer {os.getenv('GH_TOKEN')}",
+                  "Accept": "application/vnd.github.v3+json"
+              }
+              url = f"https://api.github.com/repos/{repo}/issues/{pr_number}/comments"
+
+              requests.post(url, json={"body": comment}, headers=headers)
+
+          if __name__ == "__main__":
+              diff_content = get_diff()
+              if not diff_content.strip():
+                  print("No meaningful diff detected.")
+                  exit(0)
+
+              try:
+                  comment = generate_comment(diff_content)
+                  post_comment(comment)
+                  print("Comment posted successfully.")
+              except Exception as e:
+                  print(f"Failed to process: {str(e)}")
+                  exit(1)
+          EOF
+
+          python /tmp/_workflow_core.py

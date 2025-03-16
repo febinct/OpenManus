@@ -1,6 +1,8 @@
 import asyncio
 from typing import List
 
+from tenacity import retry, stop_after_attempt, wait_exponential
+
 from app.config import config
 from app.tool.base import BaseTool
 from app.tool.search import (
@@ -14,9 +16,8 @@ from app.tool.search import (
 class WebSearch(BaseTool):
     name: str = "web_search"
     description: str = """Perform a web search and return a list of relevant links.
-Use this tool when you need to find information on the web, get up-to-date data, or research specific topics.
-The tool returns a list of URLs that match the search query.
-"""
+    This function attempts to use the primary search engine API to get up-to-date results.
+    If an error occurs, it falls back to an alternative search engine."""
     parameters: dict = {
         "type": "object",
         "properties": {
@@ -49,21 +50,50 @@ The tool returns a list of URLs that match the search query.
         Returns:
             List[str]: A list of URLs matching the search query.
         """
-        # Run the search in a thread pool to prevent blocking
+        engine_order = self._get_engine_order()
+        for engine_name in engine_order:
+            engine = self._search_engine[engine_name]
+            try:
+                links = await self._perform_search_with_engine(
+                    engine, query, num_results
+                )
+                if links:
+                    return links
+            except Exception as e:
+                print(f"Search engine '{engine_name}' failed with error: {e}")
+        return []
+
+    def _get_engine_order(self) -> List[str]:
+        """
+        Determines the order in which to try search engines.
+        Preferred engine is first (based on configuration), followed by the remaining engines.
+
+        Returns:
+            List[str]: Ordered list of search engine names.
+        """
+        preferred = "google"
+        if config.search_config and config.search_config.engine:
+            preferred = config.search_config.engine.lower()
+
+        engine_order = []
+        if preferred in self._search_engine:
+            engine_order.append(preferred)
+        for key in self._search_engine:
+            if key not in engine_order:
+                engine_order.append(key)
+        return engine_order
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=1, max=10),
+    )
+    async def _perform_search_with_engine(
+        self,
+        engine: WebSearchEngine,
+        query: str,
+        num_results: int,
+    ) -> List[str]:
         loop = asyncio.get_event_loop()
-        search_engine = self.get_search_engine()
-        links = await loop.run_in_executor(
-            None,
-            lambda: list(search_engine.perform_search(query, num_results=num_results)),
+        return await loop.run_in_executor(
+            None, lambda: list(engine.perform_search(query, num_results=num_results))
         )
-
-        return links
-
-    def get_search_engine(self) -> WebSearchEngine:
-        """Determines the search engine to use based on the configuration."""
-        default_engine = self._search_engine.get("google")
-        if config.search_config is None:
-            return default_engine
-        else:
-            engine = config.search_config.engine.lower()
-            return self._search_engine.get(engine, default_engine)

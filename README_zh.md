@@ -1,7 +1,8 @@
+<p align="center">
+  <img src="assets/logo.jpg" width="200"/>
+</p>
 
 [English](README.md) | 中文 | [한국어](README_ko.md) | [日本語](README_ja.md)
-
-
 
 [![GitHub stars](https://img.shields.io/github/stars/mannaandpoem/OpenManus?style=social)](https://github.com/mannaandpoem/OpenManus/stargazers)
 &ensp;
@@ -69,7 +70,7 @@ cd OpenManus
 3. 创建并激活虚拟环境：
 
 ```bash
-uv venv
+uv venv --python 3.12
 source .venv/bin/activate  # Unix/macOS 系统
 # Windows 系统使用：
 # .venv\Scripts\activate
