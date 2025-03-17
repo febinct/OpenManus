@@ -7,3 +7,6 @@
 [submodule "repomix"]
 	path = repomix
 	url = https://github.com/yamadashy/repomix
+[submodule "Roo-Code"]
+	path = Roo-Code
+	url = https://github.com/RooVetGit/Roo-Code

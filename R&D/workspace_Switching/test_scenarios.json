@@ -1,0 +1,306 @@
+{
+  "test_scenarios": [
+    {
+      "scenario_id": "ecommerce_support",
+      "name": "E-commerce Customer Support",
+      "description": "A customer has issues with a recent online purchase and needs help with refunds, technical problems, and product information.",
+      "required_roles": ["customer_service", "technical_support", "product_specialist"],
+      "conversation_flow": [
+        {
+          "user_message": "I ordered a laptop last week, but it hasn't arrived yet. The tracking says it was delivered, but I didn't receive anything.",
+          "expected_role": "customer_service",
+          "switching_type": "context"
+        },
+        {
+          "user_message": "Now that I have the laptop, I'm having trouble setting it up. The screen keeps flickering when I turn it on.",
+          "expected_role": "technical_support",
+          "switching_type": "context"
+        },
+        {
+          "user_message": "Can you tell me if this laptop model is good for video editing? I need something that can handle large files.",
+          "expected_role": "product_specialist",
+          "switching_type": "context"
+        },
+        {
+          "user_message": "I think I'll return it. Can you help me with the return process?",
+          "expected_role": "customer_service",
+          "switching_type": "context"
+        }
+      ]
+    },
+    {
+      "scenario_id": "health_finance_planning",
+      "name": "Health and Financial Planning",
+      "description": "A user needs guidance on improving their health while also planning for retirement and understanding insurance implications.",
+      "required_roles": ["health_coach", "financial_advisor", "legal_advisor"],
+      "conversation_flow": [
+        {
+          "user_message": "I've been feeling tired lately and want to improve my energy levels. Can you suggest some lifestyle changes?",
+          "expected_role": "health_coach",
+          "switching_type": "context"
+        },
+        {
+          "user_message": "I also need to start planning for retirement. I'm 35 and haven't saved much yet.",
+          "expected_role": "financial_advisor",
+          "switching_type": "context"
+        },
+        {
+          "user_message": "Can you switch to being a health coach again? I want to know if my health insurance would cover nutritionist visits.",
+          "expected_role": "health_coach",
+          "switching_type": "explicit"
+        },
+        {
+          "user_message": "What are the legal implications if I use my health savings account for gym memberships?",
+          "expected_role": "legal_advisor",
+          "switching_type": "context"
+        }
+      ]
+    },
+    {
+      "scenario_id": "education_creative_data",
+      "name": "Educational Project with Creative and Data Components",
+      "description": "A student needs help with a school project that involves learning concepts, creative writing, and data analysis.",
+      "required_roles": ["educational_tutor", "creative_writer", "data_analyst"],
+      "conversation_flow": [
+        {
+          "user_message": "I need help understanding the concept of climate change for my science project.",
+          "expected_role": "educational_tutor",
+          "switching_type": "context"
+        },
+        {
+          "user_message": "Now I need to write a creative story about a world affected by climate change. Can you be a creative writer?",
+          "expected_role": "creative_writer",
+          "switching_type": "explicit"
+        },
+        {
+          "user_message": "I have some temperature data from the past 50 years. Can you help me analyze trends?",
+          "expected_role": "data_analyst",
+          "switching_type": "context"
+        },
+        {
+          "user_message": "Can you explain what these trend lines mean in simple terms? I need to understand it for my presentation.",
+          "expected_role": "educational_tutor",
+          "switching_type": "context"
+        }
+      ]
+    },
+    {
+      "scenario_id": "travel_planning",
+      "name": "Vacation Planning with Technical and Financial Considerations",
+      "description": "A user planning a vacation needs help with travel recommendations, budgeting, and technical issues with booking websites.",
+      "required_roles": ["travel_consultant", "financial_advisor", "technical_support"],
+      "conversation_flow": [
+        {
+          "user_message": "I'm planning a trip to Europe this summer. Can you recommend some destinations that aren't too crowded?",
+          "expected_role": "travel_consultant",
+          "switching_type": "context"
+        },
+        {
+          "user_message": "I need to budget for this trip. How much should I set aside for a 2-week vacation in Europe?",
+          "expected_role": "financial_advisor",
+          "switching_type": "context"
+        },
+        {
+          "user_message": "I'm having trouble with the booking website. It keeps giving me an error when I try to reserve a hotel.",
+          "expected_role": "technical_support",
+          "switching_type": "context"
+        },
+        {
+          "user_message": "Now that I've fixed the technical issue, can you help me as a travel consultant again? I need to know the best time to visit Italy.",
+          "expected_role": "travel_consultant",
+          "switching_type": "explicit"
+        }
+      ]
+    },
+    {
+      "scenario_id": "product_launch",
+      "name": "Product Launch with Multiple Aspects",
+      "description": "A business owner launching a new product needs help with product details, customer service scripts, legal considerations, and marketing content.",
+      "required_roles": ["product_specialist", "customer_service", "legal_advisor", "creative_writer"],
+      "conversation_flow": [
+        {
+          "user_message": "I'm launching a new smart home device. Can you help me understand how it compares to competitors?",
+          "expected_role": "product_specialist",
+          "switching_type": "context"
+        },
+        {
+          "user_message": "I need to train my customer service team. Can you help me create some scripts for common questions?",
+          "expected_role": "customer_service",
+          "switching_type": "context"
+        },
+        {
+          "user_message": "What legal disclaimers should I include in my product documentation?",
+          "expected_role": "legal_advisor",
+          "switching_type": "context"
+        },
+        {
+          "user_message": "Can you switch to creative writer mode? I need compelling product descriptions for my website.",
+          "expected_role": "creative_writer",
+          "switching_type": "explicit"
+        }
+      ]
+    },
+    {
+      "scenario_id": "rapid_switching",
+      "name": "Rapid Role Switching Test",
+      "description": "A stress test scenario with frequent role switches to test the system's ability to handle rapid transitions.",
+      "required_roles": ["customer_service", "technical_support", "creative_writer", "data_analyst", "educational_tutor"],
+      "conversation_flow": [
+        {
+          "user_message": "I need help with my recent order.",
+          "expected_role": "customer_service",
+          "switching_type": "context"
+        },
+        {
+          "user_message": "Actually, can you switch to technical support? My computer is crashing.",
+          "expected_role": "technical_support",
+          "switching_type": "explicit"
+        },
+        {
+          "user_message": "Never mind that. Be a creative writer and write me a poem about technology.",
+          "expected_role": "creative_writer",
+          "switching_type": "explicit"
+        },
+        {
+          "user_message": "Now analyze this data: 10, 15, 20, 25, 30. What's the trend?",
+          "expected_role": "data_analyst",
+          "switching_type": "context"
+        },
+        {
+          "user_message": "Can you explain what a linear trend means in simple terms?",
+          "expected_role": "educational_tutor",
+          "switching_type": "context"
+        }
+      ]
+    },
+    {
+      "scenario_id": "ambiguous_requests",
+      "name": "Ambiguous Role Requests",
+      "description": "Tests the system's ability to handle ambiguous requests that could be interpreted as requiring multiple roles.",
+      "required_roles": ["health_coach", "financial_advisor", "product_specialist", "educational_tutor"],
+      "conversation_flow": [
+        {
+          "user_message": "I want to improve my health and save money at the same time.",
+          "expected_role": "health_coach",
+          "switching_type": "context",
+          "notes": "This could be interpreted as requiring either health_coach or financial_advisor. The system should choose one based on context priority."
+        },
+        {
+          "user_message": "Can you tell me about investment options that also support wellness companies?",
+          "expected_role": "financial_advisor",
+          "switching_type": "context",
+          "notes": "This combines financial_advisor and health_coach domains."
+        },
+        {
+          "user_message": "I'm looking for a fitness tracker that's good value for money. Any recommendations?",
+          "expected_role": "product_specialist",
+          "switching_type": "context",
+          "notes": "This combines product_specialist and health_coach domains."
+        },
+        {
+          "user_message": "Can you explain how compound interest works and how it might affect my fitness goals over time?",
+          "expected_role": "educational_tutor",
+          "switching_type": "context",
+          "notes": "This combines educational_tutor and financial_advisor domains with a touch of health_coach."
+        }
+      ]
+    },
+    {
+      "scenario_id": "contradictory_signals",
+      "name": "Contradictory Switching Signals",
+      "description": "Tests how the system handles messages that contain contradictory signals about which role should be active.",
+      "required_roles": ["customer_service", "technical_support", "creative_writer", "legal_advisor"],
+      "conversation_flow": [
+        {
+          "user_message": "I'm having a technical issue with my order. The website crashed during checkout.",
+          "expected_role": "technical_support",
+          "switching_type": "context",
+          "notes": "Contains signals for both customer_service and technical_support."
+        },
+        {
+          "user_message": "Can you be a creative writer but help me with a technical problem? My printer isn't working.",
+          "expected_role": "creative_writer",
+          "switching_type": "explicit",
+          "notes": "Explicit request for creative_writer but context suggests technical_support. Explicit should take precedence."
+        },
+        {
+          "user_message": "I need legal advice about a creative work I'm developing. Switch to legal advisor please.",
+          "expected_role": "legal_advisor",
+          "switching_type": "explicit",
+          "notes": "Contains creative context but explicit request for legal_advisor."
+        },
+        {
+          "user_message": "As a customer service agent, can you explain the legal implications of returning a product after 30 days?",
+          "expected_role": "customer_service",
+          "switching_type": "explicit",
+          "notes": "Explicit request for customer_service but question is about legal matters."
+        }
+      ]
+    },
+    {
+      "scenario_id": "multi_turn_complex",
+      "name": "Multi-turn Complex Conversation",
+      "description": "A complex conversation that requires maintaining context across multiple turns while switching roles.",
+      "required_roles": ["educational_tutor", "data_analyst", "creative_writer", "financial_advisor"],
+      "conversation_flow": [
+        {
+          "user_message": "I'm working on a project about the stock market for my economics class. Can you explain how the stock market works?",
+          "expected_role": "educational_tutor",
+          "switching_type": "context"
+        },
+        {
+          "user_message": "That's helpful. Now I have some historical stock data from the S&P 500. Can you analyze the trends from the past 10 years?",
+          "expected_role": "data_analyst",
+          "switching_type": "context"
+        },
+        {
+          "user_message": "Based on that analysis, can you write a creative story about a day in the life of a stock trader?",
+          "expected_role": "creative_writer",
+          "switching_type": "context"
+        },
+        {
+          "user_message": "That's a great story! Now, given what we've discussed about the stock market, what would be a good investment strategy for a college student like me?",
+          "expected_role": "financial_advisor",
+          "switching_type": "context"
+        },
+        {
+          "user_message": "Can you explain dollar-cost averaging in simpler terms? I'm still learning these concepts.",
+          "expected_role": "educational_tutor",
+          "switching_type": "context"
+        }
+      ]
+    },
+    {
+      "scenario_id": "no_clear_role",
+      "name": "No Clear Role Required",
+      "description": "Tests how the system handles messages that don't clearly require a specific specialized role.",
+      "required_roles": ["default"],
+      "conversation_flow": [
+        {
+          "user_message": "Hello, how are you today?",
+          "expected_role": "default",
+          "switching_type": "context",
+          "notes": "General greeting with no specific role requirement."
+        },
+        {
+          "user_message": "What's the weather like?",
+          "expected_role": "default",
+          "switching_type": "context",
+          "notes": "General information request with no specific role requirement."
+        },
+        {
+          "user_message": "Tell me something interesting.",
+          "expected_role": "default",
+          "switching_type": "context",
+          "notes": "Open-ended request with no specific role requirement."
+        },
+        {
+          "user_message": "What's your favorite color?",
+          "expected_role": "default",
+          "switching_type": "context",
+          "notes": "Personal preference question with no specific role requirement."
+        }
+      ]
+    }
+  ]
+}
