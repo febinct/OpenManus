@@ -1,147 +1,166 @@
-# Agent Switching System
+<p align="center">
+  <img src="assets/logo.jpg" width="200"/>
+</p>
 
-This project implements a system for testing and demonstrating agent switching capabilities in conversational AI. The system allows an AI assistant to seamlessly transition between different specialized roles based on user requests or conversation context.
+English | [中文](README_zh.md) | [한국어](README_ko.md) | [日本語](README_ja.md)
 
-## Overview
+[![GitHub stars](https://img.shields.io/github/stars/mannaandpoem/OpenManus?style=social)](https://github.com/mannaandpoem/OpenManus/stargazers)
+&ensp;
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) &ensp;
+[![Discord Follow](https://dcbadge.vercel.app/api/server/DYn29wFk9z?style=flat)](https://discord.gg/DYn29wFk9z)
 
-The agent switching system enables an AI to adapt its expertise, communication style, and response patterns to better serve user needs across different domains. This implementation includes:
+# 👋 OpenManus
 
-1. A set of 10 distinct agent roles with well-defined characteristics
-2. A role detection system that works through both explicit requests and context analysis
-3. A switching mechanism that handles transitions between roles
-4. A demonstration script that showcases the system's capabilities
+Manus is incredible, but OpenManus can achieve any idea without an *Invite Code* 🛫!
 
-## Files in this Project
+Our team members [@Xinbin Liang](https://github.com/mannaandpoem) and [@Jinyu Xiang](https://github.com/XiangJinyu) (core authors), along with [@Zhaoyang Yu](https://github.com/MoshiQAQ), [@Jiayi Zhang](https://github.com/didiforgithub), and [@Sirui Hong](https://github.com/stellaHSR), we are from [@MetaGPT](https://github.com/geekan/MetaGPT). The prototype is launched within 3 hours and we are keeping building!
 
-- `agent_roles.md` - Detailed descriptions of each agent role in markdown format
-- `agent_roles.json` - Structured data representation of agent roles for programmatic use
-- `agent_switcher.py` - Core implementation of the agent switching functionality
-- `agent_switching_demo.py` - Interactive demonstration script
-- `agent_switching_demonstration.md` - Comprehensive documentation of the system
+It's a simple implementation, so we welcome any suggestions, contributions, and feedback!
 
-## Agent Roles
+Enjoy your own agent with OpenManus!
 
-The system includes the following agent roles:
+We're also excited to introduce [OpenManus-RL](https://github.com/OpenManus/OpenManus-RL), an open-source project dedicated to reinforcement learning (RL)- based (such as GRPO) tuning methods for LLM agents, developed collaboratively by researchers from UIUC and OpenManus.
 
-1. **Customer Service Agent** - Assists with inquiries, complaints, and service issues
-2. **Technical Support Specialist** - Troubleshoots and resolves technical problems
-3. **Creative Writer** - Generates creative content across various formats and styles
-4. **Data Analyst** - Interprets data, identifies patterns, and provides insights
-5. **Educational Tutor** - Explains concepts, answers questions, and facilitates learning
-6. **Legal Advisor** - Provides information on legal matters and considerations
-7. **Health and Wellness Coach** - Guides on health-related topics and wellness practices
-8. **Financial Advisor** - Provides guidance on financial matters and planning
-9. **Travel Consultant** - Assists with travel planning, recommendations, and logistics
-10. **Product Specialist** - Provides detailed information about products and applications
+## Project Demo
 
-Each role has defined characteristics, communication styles, knowledge domains, and sample phrases that demonstrate their unique approach.
+<video src="https://private-user-images.githubusercontent.com/61239030/420168772-6dcfd0d2-9142-45d9-b74e-d10aa75073c6.mp4?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NDEzMTgwNTksIm5iZiI6MTc0MTMxNzc1OSwicGF0aCI6Ii82MTIzOTAzMC80MjAxNjg3NzItNmRjZmQwZDItOTE0Mi00NWQ5LWI3NGUtZDEwYWE3NTA3M2M2Lm1wND9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTAzMDclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwMzA3VDAzMjIzOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTdiZjFkNjlmYWNjMmEzOTliM2Y3M2VlYjgyNDRlZDJmOWE3NWZhZjE1MzhiZWY4YmQ3NjdkNTYwYTU5ZDA2MzYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.UuHQCgWYkh0OQq9qsUWqGsUbhG3i9jcZDAMeHjLt5T4" data-canonical-src="https://private-user-images.githubusercontent.com/61239030/420168772-6dcfd0d2-9142-45d9-b74e-d10aa75073c6.mp4?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NDEzMTgwNTksIm5iZiI6MTc0MTMxNzc1OSwicGF0aCI6Ii82MTIzOTAzMC80MjAxNjg3NzItNmRjZmQwZDItOTE0Mi00NWQ5LWI3NGUtZDEwYWE3NTA3M2M2Lm1wND9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTAzMDclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwMzA3VDAzMjIzOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTdiZjFkNjlmYWNjMmEzOTliM2Y3M2VlYjgyNDRlZDJmOWE3NWZhZjE1MzhiZWY4YmQ3NjdkNTYwYTU5ZDA2MzYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.UuHQCgWYkh0OQq9qsUWqGsUbhG3i9jcZDAMeHjLt5T4" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
 
-## How to Use
+## Installation
 
-### Running the Demonstration
+We provide two installation methods. Method 2 (using uv) is recommended for faster installation and better dependency management.
 
-To see the agent switching system in action, run the demonstration script:
+### Method 1: Using conda
+
+1. Create a new conda environment:
 
 ```bash
-python agent_switching_demo.py
+conda create -n open_manus python=3.12
+conda activate open_manus
 ```
 
-This will simulate a conversation that exercises different agent roles, showing how the system detects role requests and adapts responses accordingly.
+2. Clone the repository:
 
-### Using the AgentSwitcher Class
-
-To integrate the agent switching functionality into your own application:
-
-```python
-from agent_switcher import AgentSwitcher
-
-# Initialize the agent switcher
-agent_switcher = AgentSwitcher()
-
-# Get all available roles
-roles = agent_switcher.get_all_role_ids()
-print(f"Available roles: {roles}")
-
-# Switch to a specific role
-success, message = agent_switcher.switch_to_role("technical_support")
-print(message)  # "Switched to Technical Support Specialist role"
-
-# Get the current role information
-current_role = agent_switcher.get_current_role()
-print(f"Current role: {current_role['name']}")
-
-# Detect role from user message
-user_message = "Can you help me troubleshoot my network connection?"
-detected_role_id = agent_switcher.detect_role_from_context(user_message)
-print(f"Detected role: {detected_role_id}")  # "technical_support"
-
-# Check for explicit role requests
-user_request = "Can you switch to creative writer mode?"
-explicit_role_id = agent_switcher.detect_explicit_role_request(user_request)
-print(f"Explicit request: {explicit_role_id}")  # "creative_writer"
-
-# Get response template for current role
-template = agent_switcher.get_response_template()
-print(f"Response style: {template['style']}")
-print(f"Sample phrases: {template['sample_phrases']}")
+```bash
+git clone https://github.com/mannaandpoem/OpenManus.git
+cd OpenManus
 ```
 
-## Detection Methods
+3. Install dependencies:
 
-The system uses two primary methods to determine which agent role should be active:
+```bash
+pip install -r requirements.txt
+```
 
-1. **Explicit Role Requests** - Detects when a user directly asks for a specific type of agent
-   - Example: "Can you switch to technical support?"
-   - Example: "I'd like to speak with a financial advisor."
+### Method 2: Using uv (Recommended)
 
-2. **Context-Based Detection** - Analyzes the message content to infer the most appropriate role
-   - Example: "My computer keeps crashing" → Technical Support
-   - Example: "I need help with my budget" → Financial Advisor
+1. Install uv (A fast Python package installer and resolver):
 
-## Extending the System
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
 
-### Adding New Roles
+2. Clone the repository:
 
-To add a new agent role:
+```bash
+git clone https://github.com/mannaandpoem/OpenManus.git
+cd OpenManus
+```
 
-1. Update the `agent_roles.json` file with the new role definition
-2. Add appropriate detection patterns in the `_map_role_type_to_id` method
-3. Add response templates for the new role in your implementation
+3. Create a new virtual environment and activate it:
 
-### Improving Detection
+```bash
+uv venv
+source .venv/bin/activate  # On Unix/macOS
+# Or on Windows:
+# .venv\Scripts\activate
+```
 
-The current implementation uses keyword matching and pattern recognition. To enhance detection:
+4. Install dependencies:
 
-1. Implement more sophisticated NLP techniques
-2. Add machine learning-based classification
-3. Incorporate conversation history for better context awareness
+```bash
+uv pip install -r requirements.txt
+```
 
-## Implementation Details
+## Configuration
 
-The agent switching system is built around the `AgentSwitcher` class, which provides methods for:
+OpenManus requires configuration for the LLM APIs it uses. Follow these steps to set up your configuration:
 
-- Loading and managing agent role definitions
-- Detecting explicit role requests through pattern matching
-- Identifying appropriate roles based on message context
-- Switching between roles and tracking the current active role
-- Generating response templates based on the current role
+1. Create a `config.toml` file in the `config` directory (you can copy from the example):
 
-The implementation prioritizes explicit role requests over context-based detection when both are present.
+```bash
+cp config/config.example.toml config/config.toml
+```
 
-## Future Improvements
+2. Edit `config/config.toml` to add your API keys and customize settings:
 
-Potential enhancements to the system include:
+```toml
+# Global LLM configuration
+[llm]
+model = "gpt-4o"
+base_url = "https://api.openai.com/v1"
+api_key = "sk-..."  # Replace with your actual API key
+max_tokens = 4096
+temperature = 0.0
 
-1. More sophisticated NLP for better role detection
-2. Learning from user feedback to improve role selection
-3. Hybrid roles that combine aspects of multiple agent types
-4. Personalization based on user preferences and history
-5. Expanded role definitions with more specialized domains
+# Optional configuration for specific LLM models
+[llm.vision]
+model = "gpt-4o"
+base_url = "https://api.openai.com/v1"
+api_key = "sk-..."  # Replace with your actual API key
+```
 
-## License
+## Quick Start
 
-This project is available for educational and research purposes.
+One line for run OpenManus:
 
-## Acknowledgments
+```bash
+python main.py
+```
 
-This system was developed as part of a project to test agent switching skills in conversational AI assistants.
+Then input your idea via terminal!
+
+For unstable version, you also can run:
+
+```bash
+python run_flow.py
+```
+
+## How to contribute
+
+We welcome any friendly suggestions and helpful contributions! Just create issues or submit pull requests.
+
+Or contact @mannaandpoem via 📧email: mannaandpoem@gmail.com
+
+**Note**: Before submitting a pull request, please use the pre-commit tool to check your changes. Run `pre-commit run --all-files` to execute the checks.
+
+## Community Group
+Join our networking group on Feishu and share your experience with other developers!
+
+<div align="center" style="display: flex; gap: 20px;">
+    <img src="assets/community_group.jpg" alt="OpenManus 交流群" width="300" />
+</div>
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=mannaandpoem/OpenManus&type=Date)](https://star-history.com/#mannaandpoem/OpenManus&Date)
+
+## Acknowledgement
+
+Thanks to [anthropic-computer-use](https://github.com/anthropics/anthropic-quickstarts/tree/main/computer-use-demo)
+and [browser-use](https://github.com/browser-use/browser-use) for providing basic support for this project!
+
+Additionally, we are grateful to [AAAJ](https://github.com/metauto-ai/agent-as-a-judge), [MetaGPT](https://github.com/geekan/MetaGPT), [OpenHands](https://github.com/All-Hands-AI/OpenHands) and [SWE-agent](https://github.com/SWE-agent/SWE-agent).
+
+OpenManus is built by contributors from MetaGPT. Huge thanks to this agent community!
+
+## Cite
+```bibtex
+@misc{openmanus2025,
+  author = {Xinbin Liang and Jinyu Xiang and Zhaoyang Yu and Jiayi Zhang and Sirui Hong},
+  title = {OpenManus: An open-source framework for building general AI agents},
+  year = {2025},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/mannaandpoem/OpenManus}},
+}
+```

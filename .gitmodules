@@ -10,3 +10,6 @@
 [submodule "Roo-Code"]
 	path = Roo-Code
 	url = https://github.com/RooVetGit/Roo-Code
+[submodule "agents"]
+	path = agents
+	url = https://github.com/aiwaves-cn/agents.git
