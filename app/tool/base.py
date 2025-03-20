@@ -39,6 +39,7 @@ class ToolResult(BaseModel):
 
     output: Any = Field(default=None)
     error: Optional[str] = Field(default=None)
+    base64_image: Optional[str] = Field(default=None)
     system: Optional[str] = Field(default=None)
 
     class Config:
@@ -60,6 +61,7 @@ class ToolResult(BaseModel):
         return ToolResult(
             output=combine_fields(self.output, other.output),
             error=combine_fields(self.error, other.error),
+            base64_image=combine_fields(self.base64_image, other.base64_image, False),
             system=combine_fields(self.system, other.system),
         )
 
@@ -77,7 +79,3 @@ class CLIResult(ToolResult):
 
 class ToolFailure(ToolResult):
     """A ToolResult that represents a failure."""
-
-
-class AgentAwareTool:
-    agent: Optional = None

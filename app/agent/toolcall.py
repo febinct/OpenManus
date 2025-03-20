@@ -30,9 +30,10 @@ class ToolCallAgent(ReActAgent):
     special_tool_names: List[str] = Field(default_factory=lambda: [Terminate().name])
 
     tool_calls: List[ToolCall] = Field(default_factory=list)
-    
+
     # MCP tools that have been registered
     mcp_tools: Dict[str, Any] = Field(default_factory=dict)
+    _current_base64_image: Optional[str] = None
 
     max_steps: int = 30
     max_observe: Optional[Union[int, bool]] = None
@@ -47,9 +48,11 @@ class ToolCallAgent(ReActAgent):
             # Get response with tool options
             response = await self.llm.ask_tool(
                 messages=self.messages,
-                system_msgs=[Message.system_message(self.system_prompt)]
-                if self.system_prompt
-                else None,
+                system_msgs=(
+                    [Message.system_message(self.system_prompt)]
+                    if self.system_prompt
+                    else None
+                ),
                 tools=self.available_tools.to_params(),
                 tool_choice=self.tool_choices,
             )
@@ -71,37 +74,42 @@ class ToolCallAgent(ReActAgent):
                 return False
             raise
 
-        self.tool_calls = response.tool_calls
+        self.tool_calls = tool_calls = (
+            response.tool_calls if response and response.tool_calls else []
+        )
+        content = response.content if response and response.content else ""
 
         # Log response info
-        logger.info(f"✨ {self.name}'s thoughts: {response.content}")
+        logger.info(f"✨ {self.name}'s thoughts: {content}")
         logger.info(
-            f"🛠️ {self.name} selected {len(response.tool_calls) if response.tool_calls else 0} tools to use"
+            f"🛠️ {self.name} selected {len(tool_calls) if tool_calls else 0} tools to use"
         )
-        if response.tool_calls:
+        if tool_calls:
             logger.info(
-                f"🧰 Tools being prepared: {[call.function.name for call in response.tool_calls]}"
+                f"🧰 Tools being prepared: {[call.function.name for call in tool_calls]}"
             )
+            logger.info(f"🔧 Tool arguments: {tool_calls[0].function.arguments}")
 
         try:
+            if response is None:
+                raise RuntimeError("No response received from the LLM")
+
             # Handle different tool_choices modes
             if self.tool_choices == ToolChoice.NONE:
-                if response.tool_calls:
+                if tool_calls:
                     logger.warning(
                         f"🤔 Hmm, {self.name} tried to use tools when they weren't available!"
                     )
-                if response.content:
-                    self.memory.add_message(Message.assistant_message(response.content))
+                if content:
+                    self.memory.add_message(Message.assistant_message(content))
                     return True
                 return False
 
             # Create and add assistant message
             assistant_msg = (
-                Message.from_tool_calls(
-                    content=response.content, tool_calls=self.tool_calls
-                )
+                Message.from_tool_calls(content=content, tool_calls=self.tool_calls)
                 if self.tool_calls
-                else Message.assistant_message(response.content)
+                else Message.assistant_message(content)
             )
             self.memory.add_message(assistant_msg)
 
@@ -110,7 +118,7 @@ class ToolCallAgent(ReActAgent):
 
             # For 'auto' mode, continue with content if no commands but content exists
             if self.tool_choices == ToolChoice.AUTO and not self.tool_calls:
-                return bool(response.content)
+                return bool(content)
 
             return bool(self.tool_calls)
         except Exception as e:
@@ -133,6 +141,9 @@ class ToolCallAgent(ReActAgent):
 
         results = []
         for command in self.tool_calls:
+            # Reset base64_image for each tool call
+            self._current_base64_image = None
+
             result = await self.execute_tool(command)
 
             if self.max_observe:
@@ -144,7 +155,10 @@ class ToolCallAgent(ReActAgent):
 
             # Add tool response to memory
             tool_msg = Message.tool_message(
-                content=result, tool_call_id=command.id, name=command.function.name
+                content=result,
+                tool_call_id=command.id,
+                name=command.function.name,
+                base64_image=self._current_base64_image,
             )
             self.memory.add_message(tool_msg)
             results.append(result)
@@ -168,15 +182,28 @@ class ToolCallAgent(ReActAgent):
             logger.info(f"🔧 Activating tool: '{name}'...")
             result = await self.available_tools.execute(name=name, tool_input=args)
 
-            # Format result for display
+            # Handle special tools
+            await self._handle_special_tool(name=name, result=result)
+
+            # Check if result is a ToolResult with base64_image
+            if hasattr(result, "base64_image") and result.base64_image:
+                # Store the base64_image for later use in tool_message
+                self._current_base64_image = result.base64_image
+
+                # Format result for display
+                observation = (
+                    f"Observed output of cmd `{name}` executed:\n{str(result)}"
+                    if result
+                    else f"Cmd `{name}` completed with no output"
+                )
+                return observation
+
+            # Format result for display (standard case)
             observation = (
                 f"Observed output of cmd `{name}` executed:\n{str(result)}"
                 if result
                 else f"Cmd `{name}` completed with no output"
             )
-
-            # Handle special tools like `finish`
-            await self._handle_special_tool(name=name, result=result)
 
             return observation
         except json.JSONDecodeError:
@@ -187,7 +214,7 @@ class ToolCallAgent(ReActAgent):
             return f"Error: {error_msg}"
         except Exception as e:
             error_msg = f"⚠️ Tool '{name}' encountered a problem: {str(e)}"
-            logger.error(error_msg)
+            logger.exception(error_msg)
             return f"Error: {error_msg}"
 
     async def initialize(self):
@@ -195,26 +222,26 @@ class ToolCallAgent(ReActAgent):
         try:
             # Check if MCP module is available
             from app.mcp.tool import MCPToolRegistry, HAS_MCP_SDK
-            
+
             if HAS_MCP_SDK:
                 # Initialize MCP tools with agent name
                 self.mcp_tools = await MCPToolRegistry.initialize(agent_name=self.name)
-                
+
                 # Add MCP tools to available tools
                 for tool_name, tool in self.mcp_tools.items():
                     self.available_tools.add_tool(tool)
-                
+
                 # Update next_step_prompt to include MCP tools
                 if self.mcp_tools:
                     mcp_tools_desc = "\n\n".join([
                         f"{tool.name}: {tool.description} Parameters: {tool.parameters}"
                         for tool in self.mcp_tools.values()
                     ])
-                    
+
                     # Add MCP tools to the prompt
                     # Simply append MCP tools description to the prompt
                     self.next_step_prompt = self.next_step_prompt + f"\n\nAdditional MCP Tools:\n{mcp_tools_desc}"
-                    
+
                 logger.info(f"Initialized {len(self.mcp_tools)} MCP tools for agent {self.name}")
             else:
                 logger.info("MCP SDK not installed. MCP tools will not be available.")
@@ -236,10 +263,10 @@ class ToolCallAgent(ReActAgent):
             try:
                 # Import mcp_client only if needed
                 from app.mcp.client import mcp_client
-                
+
                 # Log that we're shutting down MCP servers
                 logger.info("Shutting down MCP servers")
-                
+
                 # Call stop_servers directly without wrapping in tasks or timeouts
                 # Let any errors propagate to be handled by the caller
                 await mcp_client.stop_servers()
@@ -263,7 +290,7 @@ class ToolCallAgent(ReActAgent):
     def _is_special_tool(self, name: str) -> bool:
         """Check if tool name is in special tools list"""
         return name.lower() in [n.lower() for n in self.special_tool_names]
-        
+
     @classmethod
     async def create(cls, **kwargs):
         """Create and initialize a new agent."""

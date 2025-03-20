@@ -202,4 +202,10 @@ project/*
 =======
 # Built Visual Studio Code Extensions
 *.vsix
+<<<<<<< HEAD
 >>>>>>> 24b3d2d62c40c15472c1105e4deab92b5629052c
+=======
+
+# OSX
+.DS_Store
+>>>>>>> f25ed7d49ec1bd710d3ef71a7da2c74f2c3136b0
